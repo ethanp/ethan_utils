@@ -3,14 +3,19 @@ import 'dart:math' as math;
 /// Extensions on List.
 extension ListExtensions<T> on List<T> {
   /// Sort in place by selector.
-  void sortOn<U extends Comparable>(U Function(T) fn,
-          {bool descending = false}) =>
-      sort((a, b) =>
-          descending ? fn(b).compareTo(fn(a)) : fn(a).compareTo(fn(b)));
+  void sortOn<U extends Comparable>(
+    U Function(T) fn, {
+    bool descending = false,
+  }) =>
+      sort(
+        (a, b) => descending ? fn(b).compareTo(fn(a)) : fn(a).compareTo(fn(b)),
+      );
 
   /// Return sorted copy by selector.
-  List<T> sortedOn<U extends Comparable>(U Function(T) fn,
-          {bool descending = false}) =>
+  List<T> sortedOn<U extends Comparable>(
+    U Function(T) fn, {
+    bool descending = false,
+  }) =>
       [...this]..sortOn(fn, descending: descending);
 
   /// Group elements by key.

@@ -1,8 +1,12 @@
 import 'package:flutter/foundation.dart';
 
+import 'app_log_buffer.dart';
+
 /// Debug logger scoped to a named component.
 ///
-/// Formats output as `[HH:mm:ss|Component] message`. No-ops in release mode.
+/// Records entries in [appLogBuffer] for all build modes.
+///
+/// In debug mode, it also mirrors output to `debugPrint`.
 ///
 /// ```dart
 /// const _log = ELogger('MyComponent');
@@ -15,25 +19,39 @@ class ELogger {
 
   const ELogger(this.component);
 
-  void log(String message) => _print(message);
+  void log(String message) =>
+      _record(level: AppLogLevel.info, message: message);
 
-  void warn(String message) => _print('⚠️ $message');
+  void warn(String message) =>
+      _record(level: AppLogLevel.warning, message: message);
 
   void error(String message, [Object? error, StackTrace? stackTrace]) {
-    _print('🔴 $message');
-    if (error != null) _print('  error: $error');
-    if (stackTrace != null) _print('  $stackTrace');
+    _record(
+      level: AppLogLevel.error,
+      message: message,
+      error: error,
+      stackTrace: stackTrace,
+    );
   }
 
   /// No-op. Fine-grained logs are too noisy for terminal output.
   // ignore: avoid_unused_parameters
   void fine(String message) {}
 
-  void _print(String message) {
+  void _record({
+    required AppLogLevel level,
+    required String message,
+    Object? error,
+    StackTrace? stackTrace,
+  }) {
+    final logEntry = appLogBuffer.record(
+      component: component,
+      level: level,
+      message: message,
+      error: error,
+      stackTrace: stackTrace,
+    );
     if (!kDebugMode) return;
-    final now = DateTime.now();
-    String pad(int n) => n.toString().padLeft(2, '0');
-    final timestamp = '${pad(now.hour)}:${pad(now.minute)}:${pad(now.second)}';
-    debugPrint('[$timestamp|$component] $message');
+    debugPrint(logEntry.formattedText);
   }
 }

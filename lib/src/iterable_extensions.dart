@@ -77,7 +77,7 @@ extension ComparableIterableExtensions<T extends Comparable<T>> on Iterable<T> {
 }
 
 /// Extensions for numeric iterables (int, double).
-/// Needed because num extends Comparable<num>, not Comparable<T>.
+/// Needed because `num` extends `Comparable<num>`, not `Comparable<T>`.
 extension NumericMinMaxExtensions<T extends num> on Iterable<T> {
   /// Minimum element.
   T get min => minBy<num>((t) => t);
