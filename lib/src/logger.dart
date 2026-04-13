@@ -19,6 +19,10 @@ class ELogger {
 
   const ELogger(this.component);
 
+  /// When true, [fine] records to [appLogBuffer] and mirrors to the console in
+  /// debug mode. Default off — set from `main()` while refining behavior.
+  static bool fineEnabled = false;
+
   void log(String message) =>
       _record(level: AppLogLevel.info, message: message);
 
@@ -34,9 +38,11 @@ class ELogger {
     );
   }
 
-  /// No-op. Fine-grained logs are too noisy for terminal output.
-  // ignore: avoid_unused_parameters
-  void fine(String message) {}
+  /// Verbose diagnostics; no-op unless [fineEnabled] is true.
+  void fine(String message) {
+    if (!fineEnabled) return;
+    _record(level: AppLogLevel.fine, message: message);
+  }
 
   void _record({
     required AppLogLevel level,

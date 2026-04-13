@@ -2,7 +2,7 @@ import 'dart:collection';
 
 import 'package:flutter/foundation.dart';
 
-enum AppLogLevel { info, warning, error }
+enum AppLogLevel { info, warning, error, fine }
 
 @immutable
 class AppLogEntry {
@@ -50,6 +50,7 @@ class AppLogEntry {
         AppLogLevel.info => message,
         AppLogLevel.warning => 'WARNING: $message',
         AppLogLevel.error => 'ERROR: $message',
+        AppLogLevel.fine => 'FINE: $message',
       };
 }
 
