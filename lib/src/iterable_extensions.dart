@@ -20,6 +20,10 @@ extension IterableExtensions<T> on Iterable<T> {
     }
   }
 
+  /// Map with index to List.
+  List<U> mapLWithIndex<U>(U Function(T elem, int index) f) =>
+      mapWithIndex(f).toList();
+
   /// Get indices as iterable.
   Iterable<int> get indices sync* {
     int i = 0;
@@ -49,6 +53,17 @@ extension IterableExtensions<T> on Iterable<T> {
 
   /// Average by selector.
   double avgBy(double Function(T) fn) => sumBy(fn) / length;
+
+  /// Count occurrences by key selector. Like Python's `Counter` /
+  /// LINQ's `GroupBy(...).Count()`. Returns a mutable Map so the caller
+  /// can keep building on it if needed.
+  Map<U, int> countBy<U>(U Function(T) keyFn) {
+    final counts = <U, int>{};
+    for (final element in this) {
+      counts.update(keyFn(element), (n) => n + 1, ifAbsent: () => 1);
+    }
+    return counts;
+  }
 
   /// Insert separator between elements.
   List<T> separatedBy(T separator) =>
