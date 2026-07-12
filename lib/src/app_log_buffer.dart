@@ -2,7 +2,20 @@ import 'dart:collection';
 
 import 'package:flutter/foundation.dart';
 
-enum AppLogLevel { info, warning, error, fine }
+enum AppLogLevel {
+  info,
+  warning,
+  error,
+  fine;
+
+  /// Stable tag used in [AppLogEntry.formattedText] and filterable via regex.
+  String get tag => switch (this) {
+        AppLogLevel.info => 'INFO',
+        AppLogLevel.warning => 'WARN',
+        AppLogLevel.error => 'ERROR',
+        AppLogLevel.fine => 'FINE',
+      };
+}
 
 @immutable
 class AppLogEntry {
@@ -23,8 +36,7 @@ class AppLogEntry {
   final StackTrace? stackTrace;
 
   String get formattedText {
-    final logMessageBuffer = StringBuffer(_logLinePrefix())
-      ..write(_formattedMessageBody());
+    final logMessageBuffer = StringBuffer(_logLinePrefix())..write(message);
 
     if (error != null) {
       logMessageBuffer.write('\n  error: $error');
@@ -36,7 +48,8 @@ class AppLogEntry {
     return logMessageBuffer.toString();
   }
 
-  String _logLinePrefix() => '[${_formattedTimestamp()}|$component] ';
+  String _logLinePrefix() =>
+      '[${_formattedTimestamp()}|${level.tag}|$component] ';
 
   String _formattedTimestamp() {
     String pad(int value) => value.toString().padLeft(2, '0');
@@ -45,13 +58,6 @@ class AppLogEntry {
     return '${pad(timestamp.hour)}:${pad(timestamp.minute)}:'
         '${pad(timestamp.second)}.$centiseconds';
   }
-
-  String _formattedMessageBody() => switch (level) {
-        AppLogLevel.info => message,
-        AppLogLevel.warning => 'WARNING: $message',
-        AppLogLevel.error => 'ERROR: $message',
-        AppLogLevel.fine => 'FINE: $message',
-      };
 }
 
 class AppLogBuffer extends ChangeNotifier {

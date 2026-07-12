@@ -61,10 +61,45 @@ void main() {
     expect(appLogBufferUnderTest.entries, isEmpty);
   });
 
+  test('formattedText includes level tag for every severity', () {
+    final fixedTimestamp = DateTime(2026, 4, 5, 10, 11, 12, 130);
+    final appLogBufferUnderTest = AppLogBuffer(clock: () => fixedTimestamp);
+
+    appLogBufferUnderTest.record(
+      component: 'Search',
+      level: AppLogLevel.info,
+      message: 'query changed',
+    );
+    appLogBufferUnderTest.record(
+      component: 'Sync',
+      level: AppLogLevel.warning,
+      message: 'retrying',
+    );
+    appLogBufferUnderTest.record(
+      component: 'Sync',
+      level: AppLogLevel.error,
+      message: 'failed',
+      error: StateError('boom'),
+    );
+
+    expect(
+      appLogBufferUnderTest.entries[0].formattedText,
+      '[10:11:12.13|INFO|Search] query changed',
+    );
+    expect(
+      appLogBufferUnderTest.entries[1].formattedText,
+      '[10:11:12.13|WARN|Sync] retrying',
+    );
+    expect(
+      appLogBufferUnderTest.entries[2].formattedText,
+      startsWith('[10:11:12.13|ERROR|Sync] failed\n  error:'),
+    );
+  });
+
   test('debug print capture ignores structured ELogger lines', () {
     final appLogBufferUnderTest = AppLogBuffer();
     appLogBufferUnderTest.captureDebugPrintLine(
-      '[10:11:12.13|Search] Query changed',
+      '[10:11:12.13|INFO|Search] Query changed',
     );
     appLogBufferUnderTest.captureDebugPrintLine('RenderObject overflowed');
 
