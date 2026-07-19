@@ -1,3 +1,17 @@
+/// Converts epoch milliseconds to [DateTime].
+extension DateTimeFromMillis on int {
+  DateTime get dateTimeFromMillis =>
+      DateTime.fromMillisecondsSinceEpoch(this);
+}
+
+/// Converts nullable epoch milliseconds to a nullable [DateTime].
+extension NullableDateTimeFromMillis on int? {
+  DateTime? get dateTimeFromMillis {
+    if (this == null) return null;
+    return DateTime.fromMillisecondsSinceEpoch(this!);
+  }
+}
+
 /// Extensions on DateTime.
 extension DateTimeExtensions on DateTime {
   /// Check if same calendar day as another date.

@@ -12,6 +12,7 @@ export 'src/iterable_extensions.dart';
 export 'src/list_extensions.dart';
 export 'src/comparable_extensions.dart';
 export 'src/num_extensions.dart';
+export 'src/dynamic_int_parsing.dart';
 export 'src/datetime_extensions.dart';
 export 'src/string_extensions.dart';
 export 'src/enum_extensions.dart';
