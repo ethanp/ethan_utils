@@ -1,5 +1,8 @@
 // Shared Dart/Flutter extensions and utilities.
 
+export 'package:flutter_dotenv/flutter_dotenv.dart' show dotenv;
+
+export 'src/app_dotenv.dart';
 export 'src/logger.dart';
 export 'src/app_log_bootstrap.dart';
 export 'src/app_log_buffer.dart';
@@ -18,3 +21,4 @@ export 'src/string_extensions.dart';
 export 'src/enum_extensions.dart';
 export 'src/color_extensions.dart';
 export 'src/context_extensions.dart';
+

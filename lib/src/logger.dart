@@ -26,8 +26,14 @@ class ELogger {
   void log(String message) =>
       _record(level: AppLogLevel.info, message: message);
 
-  void warn(String message) =>
-      _record(level: AppLogLevel.warning, message: message);
+  void warn(String message, [Object? error, StackTrace? stackTrace]) {
+    _record(
+      level: AppLogLevel.warning,
+      message: message,
+      error: error,
+      stackTrace: stackTrace,
+    );
+  }
 
   void error(String message, [Object? error, StackTrace? stackTrace]) {
     _record(
