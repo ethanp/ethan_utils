@@ -2,6 +2,26 @@
 extension StringExtensions on String {
   static final _upperCase = RegExp(r'([A-Z])');
 
+  /// Stable non-negative hash for palette / shade seeding.
+  int get stableHash {
+    var hash = 0;
+    for (final codeUnit in codeUnits) {
+      hash = (hash * 31 + codeUnit) & 0x7fffffff;
+    }
+    return hash;
+  }
+
+  /// Parses a decimal amount string (`-12.34`) into integer cents.
+  int get asCents {
+    final trimmed = trim();
+    if (trimmed.isEmpty) return 0;
+    final parsed = double.tryParse(trimmed);
+    if (parsed == null) {
+      throw FormatException('Invalid amount: $this');
+    }
+    return (parsed * 100).round();
+  }
+
   /// Capitalize the first character.
   String get capitalize =>
       isEmpty ? this : this[0].toUpperCase() + substring(1);

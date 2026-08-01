@@ -1,4 +1,5 @@
 import 'package:ethan_utils/ethan_utils.dart';
+import 'package:flutter/painting.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -24,6 +25,115 @@ void main() {
       expect(
         millis.dateTimeFromMillis,
         DateTime.fromMillisecondsSinceEpoch(1000),
+      );
+    });
+  });
+
+  group('calendarDayDiff', () {
+    test('same local calendar day is zero', () {
+      final morning = DateTime(2026, 5, 1, 9);
+      final evening = DateTime(2026, 5, 1, 23, 59);
+      expect(morning.calendarDayDiff(evening), 0);
+    });
+
+    test('counts whole local calendar days apart', () {
+      final friday = DateTime(2026, 5, 1, 16);
+      final monday = DateTime(2026, 5, 4, 10);
+      expect(friday.calendarDayDiff(monday), 3);
+      expect(monday.calendarDayDiff(friday), 3);
+    });
+  });
+
+  group('month and day keys', () {
+    test('yearMonthKey and startOfMonth', () {
+      final date = DateTime(2026, 5, 17, 15);
+      expect(date.yearMonthKey, '2026-05');
+      expect(date.startOfMonth, DateTime(2026, 5, 1));
+      expect(date.startOfNextMonth, DateTime(2026, 6, 1));
+    });
+
+    test('dayKey uses local calendar day', () {
+      final date = DateTime(2026, 5, 4, 10, 30);
+      expect(date.dayKey, '2026-05-04');
+    });
+  });
+
+  group('asCents', () {
+    test('parses decimal amounts', () {
+      expect('-12.34'.asCents, -1234);
+      expect('0.1'.asCents, 10);
+      expect('100'.asCents, 10000);
+    });
+  });
+
+  group('formatCents', () {
+    test('formats with two decimal places', () {
+      expect(formatCents(1234), r'$12.34');
+    });
+  });
+
+  group('niceNumber', () {
+    test('snaps to 1/2/5 × 10^n', () {
+      expect(1200.niceNumber(round: true), 1000);
+      expect(3000.niceNumber(round: true), 5000);
+    });
+  });
+
+  group('stableHash and shadeKeyedBy', () {
+    test('stableHash is deterministic', () {
+      expect('abc'.stableHash, 'abc'.stableHash);
+      expect('abc'.stableHash, isNot('abd'.stableHash));
+    });
+
+    test('shadeKeyedBy returns a color', () {
+      const base = Color(0xFF4361EE);
+      expect(base.shadeKeyedBy('cat-1'), isA<Color>());
+    });
+  });
+
+  group('measureWidth', () {
+    test('returns positive width', () {
+      const style = TextStyle(fontSize: 14);
+      expect('Hello'.measureWidth(style), greaterThan(0));
+      expect(['a', 'www'].maxPaintedWidth(style), greaterThan(0));
+    });
+  });
+
+  group('relativeTimeAgo', () {
+    test('uses compact units through years', () {
+      final now = DateTime.now();
+      expect(now.relativeTimeAgo(), 'just now');
+      expect(
+        now.subtract(const Duration(minutes: 5)).relativeTimeAgo(),
+        '5m ago',
+      );
+      expect(
+        now.subtract(const Duration(hours: 3)).relativeTimeAgo(),
+        '3h ago',
+      );
+      expect(
+        now.subtract(const Duration(days: 2)).relativeTimeAgo(),
+        '2d ago',
+      );
+      expect(
+        now.subtract(const Duration(days: 14)).relativeTimeAgo(),
+        '2w ago',
+      );
+      expect(
+        now.subtract(const Duration(days: 60)).relativeTimeAgo(),
+        '2mo ago',
+      );
+      expect(
+        now.subtract(const Duration(days: 400)).relativeTimeAgo(),
+        '1y ago',
+      );
+    });
+
+    test('includeClock keeps a dated clock after a week', () {
+      final stamped = DateTime.now().subtract(const Duration(days: 10));
+      expect(
+        stamped.relativeTimeAgo(includeClock: true),
+        isNot(contains('ago')),
       );
     });
   });

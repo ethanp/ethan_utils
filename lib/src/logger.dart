@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'package:flutter/foundation.dart';
 
 import 'app_log_buffer.dart';
@@ -6,7 +8,8 @@ import 'app_log_buffer.dart';
 ///
 /// Records entries in [appLogBuffer] for all build modes.
 ///
-/// In debug mode, it also mirrors output to `debugPrint`.
+/// In debug mode, it also mirrors output via [developer.log] (avoids the
+/// `flutter:` prefix that `debugPrint` / `print` get from Flutter tooling).
 ///
 /// ```dart
 /// const _log = ELogger('MyComponent');
@@ -64,6 +67,17 @@ class ELogger {
       stackTrace: stackTrace,
     );
     if (!kDebugMode) return;
-    debugPrint(logEntry.formattedText);
+    developer.log(
+      logEntry.formattedText,
+      name: component,
+      level: _developerLogLevel(level),
+    );
   }
+
+  static int _developerLogLevel(AppLogLevel level) => switch (level) {
+        AppLogLevel.fine => 500,
+        AppLogLevel.info => 800,
+        AppLogLevel.warning => 900,
+        AppLogLevel.error => 1000,
+      };
 }

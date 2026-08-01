@@ -17,8 +17,11 @@ export 'src/comparable_extensions.dart';
 export 'src/num_extensions.dart';
 export 'src/dynamic_int_parsing.dart';
 export 'src/datetime_extensions.dart';
+export 'src/duration_formatting.dart';
 export 'src/string_extensions.dart';
 export 'src/enum_extensions.dart';
 export 'src/color_extensions.dart';
 export 'src/context_extensions.dart';
+export 'src/money_format.dart';
+export 'src/text_measure.dart';
 
