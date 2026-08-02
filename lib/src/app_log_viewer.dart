@@ -39,13 +39,11 @@ class AppLogViewerStyle {
 
 /// In-app viewer for [appLogBuffer] entries (filter, clear, follow).
 class AppLogViewer extends StatefulWidget {
-  const AppLogViewer({
-    super.key,
-    required this.style,
-    this.emptyMessage = 'No logs yet',
-    this.showClearButton = true,
-    this.logFontSize = 12,
-  });
+  const AppLogViewer(
+      {required this.style,
+      this.emptyMessage = 'No logs yet',
+      this.showClearButton = true,
+      this.logFontSize = 12});
 
   final AppLogViewerStyle style;
   final String emptyMessage;
@@ -285,11 +283,11 @@ class _AppLogViewerState extends State<AppLogViewer> {
   }
 
   Color _entryColor(AppLogLevel level) => switch (level) {
-    AppLogLevel.info => _style.textSecondary,
-    AppLogLevel.warning => _style.warning,
-    AppLogLevel.error => _style.error,
-    AppLogLevel.fine => _style.textTertiary,
-  };
+        AppLogLevel.info => _style.textSecondary,
+        AppLogLevel.warning => _style.warning,
+        AppLogLevel.error => _style.error,
+        AppLogLevel.fine => _style.textTertiary,
+      };
 
   void _onScrollChanged() {
     if (!_scrollController.hasClients || _programmaticScrollInProgress) return;

@@ -137,4 +137,23 @@ void main() {
       );
     });
   });
+
+  group('relativeTimeShort', () {
+    test('omits ago suffix', () {
+      final now = DateTime.now();
+      expect(now.relativeTimeShort(), 'now');
+      expect(
+        now.subtract(const Duration(minutes: 5)).relativeTimeShort(),
+        '5m',
+      );
+      expect(
+        now.subtract(const Duration(hours: 3)).relativeTimeShort(),
+        '3h',
+      );
+      expect(
+        now.subtract(const Duration(days: 2)).relativeTimeShort(),
+        '2d',
+      );
+    });
+  });
 }

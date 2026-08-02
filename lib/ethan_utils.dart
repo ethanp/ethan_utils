@@ -24,4 +24,3 @@ export 'src/color_extensions.dart';
 export 'src/context_extensions.dart';
 export 'src/money_format.dart';
 export 'src/text_measure.dart';
-
