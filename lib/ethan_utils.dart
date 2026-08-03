@@ -7,6 +7,7 @@ export 'src/logger.dart';
 export 'src/app_log_bootstrap.dart';
 export 'src/app_log_buffer.dart';
 export 'src/app_log_viewer.dart';
+export 'src/log_text_view.dart';
 export 'src/error_report_body.dart';
 export 'src/error_report_dialog.dart';
 export 'src/image_bytes.dart';

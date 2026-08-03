@@ -3,18 +3,15 @@ import 'dart:collection';
 import 'package:flutter/foundation.dart';
 
 enum AppLogLevel {
-  info,
-  warning,
-  error,
-  fine;
+  info(tag: 'INFO'),
+  warning(tag: 'WARN'),
+  error(tag: 'ERROR'),
+  fine(tag: 'FINE');
+
+  const AppLogLevel({required this.tag});
 
   /// Stable tag used in [AppLogEntry.formattedText] and filterable via regex.
-  String get tag => switch (this) {
-        AppLogLevel.info => 'INFO',
-        AppLogLevel.warning => 'WARN',
-        AppLogLevel.error => 'ERROR',
-        AppLogLevel.fine => 'FINE',
-      };
+  final String tag;
 }
 
 @immutable

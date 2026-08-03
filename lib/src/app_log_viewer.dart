@@ -1,6 +1,7 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 import 'app_log_buffer.dart';
+import 'log_text_view.dart';
 
 /// Colors and spacing for [AppLogViewer], so apps can match their own theme.
 class AppLogViewerStyle {
@@ -37,29 +38,30 @@ class AppLogViewerStyle {
   final double spacingXl;
 }
 
-/// In-app viewer for [appLogBuffer] entries (filter, clear, follow).
+/// In-app viewer for [appLogBuffer] entries (filter, clear, hug).
 class AppLogViewer extends StatefulWidget {
-  const AppLogViewer(
-      {required this.style,
-      this.emptyMessage = 'No logs yet',
-      this.showClearButton = true,
-      this.logFontSize = 12});
+  const AppLogViewer({
+    required this.style,
+    this.emptyMessage = 'No logs yet',
+    this.showClearButton = true,
+    this.logFontSize = 12,
+    this.maxBodyHeight,
+  });
 
   final AppLogViewerStyle style;
   final String emptyMessage;
   final bool showClearButton;
   final double logFontSize;
 
+  /// When set, the log body is height-capped instead of [Expanded].
+  final double? maxBodyHeight;
+
   @override
   State<AppLogViewer> createState() => _AppLogViewerState();
 }
 
 class _AppLogViewerState extends State<AppLogViewer> {
-  final ScrollController _scrollController = ScrollController();
   final TextEditingController _filterController = TextEditingController();
-  final FocusNode _selectionFocusNode = FocusNode();
-  bool _userScrolledAwayFromBottom = false;
-  bool _programmaticScrollInProgress = false;
   String _filterText = '';
 
   AppLogViewerStyle get _style => widget.style;
@@ -67,7 +69,6 @@ class _AppLogViewerState extends State<AppLogViewer> {
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(_onScrollChanged);
     _filterController.addListener(
       () => setState(() => _filterText = _filterController.text),
     );
@@ -75,10 +76,7 @@ class _AppLogViewerState extends State<AppLogViewer> {
 
   @override
   void dispose() {
-    _scrollController.removeListener(_onScrollChanged);
-    _scrollController.dispose();
     _filterController.dispose();
-    _selectionFocusNode.dispose();
     super.dispose();
   }
 
@@ -106,28 +104,46 @@ class _AppLogViewerState extends State<AppLogViewer> {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
+    final viewer = AnimatedBuilder(
       animation: appLogBuffer,
       builder: (context, child) {
         final allEntries = appLogBuffer.entries;
         final visibleEntries = _applyFilter(allEntries);
-        WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
-        return Container(
-          decoration: BoxDecoration(
-            color: _style.surface,
+        return Material(
+          color: _style.surface,
+          shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(_style.radius),
-            border: Border.all(color: _style.border),
+            side: BorderSide(color: _style.border),
           ),
+          clipBehavior: Clip.antiAlias,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _header(visibleEntries.length, allEntries.length),
               Container(height: 1, color: _style.border),
-              Expanded(child: _viewerBody(visibleEntries)),
+              _viewerBody(visibleEntries),
             ],
           ),
         );
       },
+    );
+
+    // Material TextField / IconButton need MaterialLocalizations; CupertinoApp
+    // hosts (workouts, etc.) do not provide them unless we inject here.
+    if (Localizations.of<MaterialLocalizations>(
+          context,
+          MaterialLocalizations,
+        ) !=
+        null) {
+      return viewer;
+    }
+    return Localizations(
+      locale: Localizations.maybeLocaleOf(context) ?? const Locale('en', 'US'),
+      delegates: const [
+        DefaultMaterialLocalizations.delegate,
+        DefaultWidgetsLocalizations.delegate,
+      ],
+      child: viewer,
     );
   }
 
@@ -154,7 +170,6 @@ class _AppLogViewerState extends State<AppLogViewer> {
           ),
           SizedBox(width: _style.spacingSm),
           Expanded(child: _filterField()),
-          if (_userScrolledAwayFromBottom) _followButton(),
           if (widget.showClearButton) _clearButton(),
         ],
       ),
@@ -162,124 +177,92 @@ class _AppLogViewerState extends State<AppLogViewer> {
   }
 
   Widget _filterField() {
-    return CupertinoTextField(
+    final borderColor = _filterIsInvalidRegex ? _style.error : _style.border;
+    return TextField(
       controller: _filterController,
-      placeholder: 'filter regex… e.g. ERROR| or WARN',
-      padding: EdgeInsets.symmetric(
-        horizontal: _style.spacingSm,
-        vertical: _style.spacingXs,
-      ),
       style: TextStyle(
         color: _style.textPrimary,
         fontFamily: 'monospace',
         fontSize: 13,
       ),
-      placeholderStyle: TextStyle(
-        color: _style.textTertiary,
-        fontSize: 13,
-      ),
-      decoration: BoxDecoration(
-        color: _style.surfaceElevated,
-        borderRadius: BorderRadius.circular(_style.radius * 0.67),
-        border: Border.all(
-          color: _filterIsInvalidRegex ? _style.error : _style.border,
+      cursorColor: _style.accent,
+      decoration: InputDecoration(
+        isDense: true,
+        hintText: 'filter regex… e.g. ERROR| or WARN',
+        hintStyle: TextStyle(color: _style.textTertiary, fontSize: 13),
+        filled: true,
+        fillColor: _style.surfaceElevated,
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: _style.spacingSm,
+          vertical: _style.spacingXs + 2,
         ),
-      ),
-      suffix: _filterText.isEmpty
-          ? null
-          : CupertinoButton(
-              padding: EdgeInsets.only(right: _style.spacingXs),
-              minimumSize: Size.zero,
-              onPressed: _filterController.clear,
-              child: Icon(
-                CupertinoIcons.clear_circled_solid,
-                size: 16,
-                color: _style.textTertiary,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(_style.radius * 0.67),
+          borderSide: BorderSide(color: borderColor),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(_style.radius * 0.67),
+          borderSide: BorderSide(color: borderColor),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(_style.radius * 0.67),
+          borderSide: BorderSide(color: borderColor, width: 1.5),
+        ),
+        suffixIcon: _filterText.isEmpty
+            ? null
+            : IconButton(
+                tooltip: 'Clear filter',
+                onPressed: _filterController.clear,
+                iconSize: 16,
+                visualDensity: VisualDensity.compact,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints.tightFor(width: 28, height: 28),
+                icon: Icon(Icons.cancel, color: _style.textTertiary),
               ),
-            ),
-    );
-  }
-
-  Widget _followButton() {
-    return CupertinoButton(
-      padding: EdgeInsets.symmetric(horizontal: _style.spacingSm),
-      minimumSize: Size.zero,
-      onPressed: () {
-        setState(() => _userScrolledAwayFromBottom = false);
-        _scrollToBottom();
-      },
-      child: Text(
-        'Follow',
-        style: TextStyle(color: _style.accent, fontSize: 13),
       ),
     );
   }
 
   Widget _clearButton() {
-    return CupertinoButton(
-      padding: EdgeInsets.symmetric(horizontal: _style.spacingSm),
-      minimumSize: Size.zero,
+    return IconButton(
+      tooltip: 'Clear logs',
       onPressed: appLogBuffer.clear,
-      child: Icon(
-        CupertinoIcons.clear,
-        size: 18,
-        color: _style.textTertiary,
-      ),
+      iconSize: 18,
+      visualDensity: VisualDensity.compact,
+      padding: EdgeInsets.symmetric(horizontal: _style.spacingSm),
+      constraints: const BoxConstraints.tightFor(width: 36, height: 32),
+      icon: Icon(Icons.clear_all, color: _style.textTertiary),
     );
   }
 
   Widget _viewerBody(List<AppLogEntry> entries) {
-    if (entries.isEmpty) return _emptyState();
-    return _entryList(entries);
-  }
-
-  Widget _emptyState() {
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.all(_style.spacingXl),
-        child: Text(
-          widget.emptyMessage,
-          style: TextStyle(
-            color: _style.textTertiary,
-            fontSize: 13,
-            fontStyle: FontStyle.italic,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _entryList(List<AppLogEntry> entries) {
-    // Cupertino SelectableRegion — Material SelectionArea needs
-    // MaterialLocalizations that CupertinoApp does not provide.
-    return SelectableRegion(
-      focusNode: _selectionFocusNode,
-      selectionControls: cupertinoTextSelectionHandleControls,
-      child: ListView.builder(
-        controller: _scrollController,
-        padding: EdgeInsets.symmetric(
-          horizontal: _style.spacingMd,
-          vertical: _style.spacingSm,
-        ),
-        itemCount: entries.length,
-        itemBuilder: (context, index) => _entryText(entries[index]),
-      ),
-    );
-  }
-
-  Widget _entryText(AppLogEntry entry) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Text(
-        entry.formattedText,
-        style: TextStyle(
+    final logLines = [
+      for (final entry in entries)
+        LogTextLine(
+          text: entry.formattedText,
           color: _entryColor(entry.level),
-          fontFamily: 'monospace',
-          fontSize: widget.logFontSize,
-          height: 1.35,
         ),
+    ];
+    final viewer = LogTextView(
+      lines: logLines,
+      emptyMessage: widget.emptyMessage,
+      maxHeight: widget.maxBodyHeight,
+      padding: EdgeInsets.symmetric(
+        horizontal: _style.spacingMd,
+        vertical: _style.spacingSm,
       ),
+      textStyle: TextStyle(
+        color: _style.textSecondary,
+        fontFamily: 'monospace',
+        fontSize: widget.logFontSize,
+        height: 1.35,
+      ),
+      controlColor: _style.textTertiary,
+      controlActiveColor: _style.accent,
     );
+
+    if (widget.maxBodyHeight != null) return viewer;
+    return Expanded(child: viewer);
   }
 
   Color _entryColor(AppLogLevel level) => switch (level) {
@@ -288,27 +271,4 @@ class _AppLogViewerState extends State<AppLogViewer> {
         AppLogLevel.error => _style.error,
         AppLogLevel.fine => _style.textTertiary,
       };
-
-  void _onScrollChanged() {
-    if (!_scrollController.hasClients || _programmaticScrollInProgress) return;
-    final position = _scrollController.position;
-    final isNearBottom = position.pixels >= position.maxScrollExtent - 50;
-    if (_userScrolledAwayFromBottom && isNearBottom) {
-      setState(() => _userScrolledAwayFromBottom = false);
-      return;
-    }
-    if (!isNearBottom && !_userScrolledAwayFromBottom) {
-      setState(() => _userScrolledAwayFromBottom = true);
-    }
-  }
-
-  void _scrollToBottom() {
-    if (!_scrollController.hasClients || _userScrolledAwayFromBottom) return;
-    _programmaticScrollInProgress = true;
-    _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      _programmaticScrollInProgress = false;
-    });
-  }
 }

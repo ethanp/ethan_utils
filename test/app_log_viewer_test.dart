@@ -1,42 +1,34 @@
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+const _style = AppLogViewerStyle(
+  surface: Color(0xFF1C1F23),
+  surfaceElevated: Color(0xFF262A30),
+  border: Color(0xFF3A404A),
+  accent: Color(0xFF2F8F86),
+  textPrimary: Color(0xFFF2F4F6),
+  textSecondary: Color(0xFFC5CBD3),
+  textTertiary: Color(0xFF8B939E),
+  warning: Color(0xFFD4A05A),
+  error: Color(0xFFD46A6A),
+);
 
 void main() {
   tearDown(appLogBuffer.clear);
 
-  testWidgets('AppLogViewer builds selectable logs under CupertinoApp', (
+  testWidgets('AppLogViewer builds selectable logs under MaterialApp', (
     tester,
   ) async {
-    appLogBuffer.record(
-      component: 'Test',
-      level: AppLogLevel.info,
-      message: 'hello selectable',
-    );
-    appLogBuffer.record(
-      component: 'Test',
-      level: AppLogLevel.error,
-      message: 'boom',
-    );
+    _seedLogs();
 
     await tester.pumpWidget(
-      CupertinoApp(
-        home: CupertinoPageScaffold(
-          child: SizedBox(
+      MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
             height: 400,
-            child: AppLogViewer(
-              style: const AppLogViewerStyle(
-                surface: Color(0xFF1C1F23),
-                surfaceElevated: Color(0xFF262A30),
-                border: Color(0xFF3A404A),
-                accent: Color(0xFF2F8F86),
-                textPrimary: Color(0xFFF2F4F6),
-                textSecondary: Color(0xFFC5CBD3),
-                textTertiary: Color(0xFF8B939E),
-                warning: Color(0xFFD4A05A),
-                error: Color(0xFFD46A6A),
-              ),
-            ),
+            child: AppLogViewer(style: _style),
           ),
         ),
       ),
@@ -46,5 +38,42 @@ void main() {
     expect(find.textContaining('INFO|Test'), findsOneWidget);
     expect(find.textContaining('ERROR|Test'), findsOneWidget);
     expect(find.byType(SelectableRegion), findsOneWidget);
+    expect(find.byType(TextField), findsOneWidget);
+    expect(find.byIcon(Icons.clear_all), findsOneWidget);
   });
+
+  testWidgets('AppLogViewer Material chrome works under CupertinoApp', (
+    tester,
+  ) async {
+    _seedLogs();
+
+    await tester.pumpWidget(
+      CupertinoApp(
+        home: CupertinoPageScaffold(
+          child: SizedBox(
+            height: 400,
+            child: AppLogViewer(style: _style),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('INFO|Test'), findsOneWidget);
+    expect(find.byType(TextField), findsOneWidget);
+    expect(find.byIcon(Icons.clear_all), findsOneWidget);
+  });
+}
+
+void _seedLogs() {
+  appLogBuffer.record(
+    component: 'Test',
+    level: AppLogLevel.info,
+    message: 'hello selectable',
+  );
+  appLogBuffer.record(
+    component: 'Test',
+    level: AppLogLevel.error,
+    message: 'boom',
+  );
 }
