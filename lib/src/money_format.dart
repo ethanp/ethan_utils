@@ -1,5 +1,7 @@
 import 'package:intl/intl.dart';
 
+import 'num_extensions.dart';
+
 final NumberFormat _currencyFormat = NumberFormat.currency(
   symbol: r'$',
   decimalDigits: 2,
@@ -31,15 +33,7 @@ String formatCentsWholeDollars(int cents) {
 String formatAxisCents(num cents) {
   final dollars = cents / 100;
   if (dollars.abs() >= 1000) {
-    final thousands = dollars / 1000;
-    if ((thousands - thousands.round()).abs() < 0.001) {
-      return '\$${thousands.round()}k';
-    }
-    final oneDecimal = (thousands * 10).round() / 10;
-    if ((oneDecimal * 10).round() % 10 == 0) {
-      return '\$${oneDecimal.round()}k';
-    }
-    return '\$${oneDecimal.toStringAsFixed(1)}k';
+    return '\$${dollars.asCompactCount}';
   }
   if (dollars.abs() >= 100) {
     return '\$${dollars.round()}';

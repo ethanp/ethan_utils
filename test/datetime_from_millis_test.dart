@@ -79,6 +79,20 @@ void main() {
     });
   });
 
+  group('asCompactCount', () {
+    test('keeps small values plain', () {
+      expect(324.asCompactCount, '324');
+      expect(0.asCompactCount, '0');
+    });
+
+    test('uses k and M suffixes', () {
+      expect(1000.asCompactCount, '1k');
+      expect(1200.asCompactCount, '1.2k');
+      expect(10845.asCompactCount, '10.8k');
+      expect(1500000.asCompactCount, '1.5M');
+    });
+  });
+
   group('NiceValueScale', () {
     test('builds human-round ticks covering the data max', () {
       final scale = NiceValueScale.forMax(10845);

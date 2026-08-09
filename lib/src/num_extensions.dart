@@ -38,6 +38,28 @@ extension NumExtensions on num {
     }
     return niceFraction * math.pow(10, exponent);
   }
+
+  /// Compact count label: `324`, `1k`, `1.2k`, `3.4M`.
+  String get asCompactCount {
+    final sign = this < 0 ? '-' : '';
+    final absolute = abs();
+    if (absolute >= 1000000) {
+      return '$sign${_compactCoefficient(absolute / 1000000)}M';
+    }
+    if (absolute >= 1000) {
+      return '$sign${_compactCoefficient(absolute / 1000)}k';
+    }
+    if (this == roundToDouble()) return '${toInt()}';
+    return toString();
+  }
+}
+
+/// One-decimal coefficient for k/M suffixes (`1`, `1.2`).
+String _compactCoefficient(num scaled) {
+  if ((scaled - scaled.round()).abs() < 0.001) return '${scaled.round()}';
+  final oneDecimal = (scaled * 10).round() / 10;
+  if ((oneDecimal * 10).round() % 10 == 0) return '${oneDecimal.round()}';
+  return oneDecimal.toStringAsFixed(1);
 }
 
 /// Extensions on int.
