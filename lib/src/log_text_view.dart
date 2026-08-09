@@ -48,6 +48,7 @@ class LogTextView extends StatefulWidget {
     this.maxHeight,
     this.emptyMessage = '(no log yet)',
     this.highlights = const [],
+    this.trimBeforeLastHighlight = false,
     this.padding = const EdgeInsets.all(12),
     this.reverse = false,
     this.showScrollControls = true,
@@ -68,6 +69,11 @@ class LogTextView extends StatefulWidget {
   final double? maxHeight;
   final String emptyMessage;
   final List<LogLineHighlight> highlights;
+
+  /// When true, hide lines before the last highlight match until the eye
+  /// toggle reveals them (e.g. pre–hot-restart flutter run output).
+  final bool trimBeforeLastHighlight;
+
   final EdgeInsetsGeometry padding;
 
   /// When true and scroll controls are off with no external controller, uses a
@@ -92,6 +98,7 @@ class _LogTextViewState extends State<LogTextView> {
   ScrollController? _ownedController;
   bool _hugBottom = true;
   bool _programmaticScrollInProgress = false;
+  bool _showPrecedingLog = false;
 
   ScrollController get _scrollController =>
       widget.controller ?? _ownedController!;
@@ -118,8 +125,12 @@ class _LogTextViewState extends State<LogTextView> {
       }
       _scrollController.addListener(_onScrollChanged);
     }
+    if (!widget.trimBeforeLastHighlight) {
+      _showPrecedingLog = false;
+    }
     if (_hugBottom) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottomIfHugging());
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => _scrollToBottomIfHugging());
     }
   }
 
@@ -133,9 +144,16 @@ class _LogTextViewState extends State<LogTextView> {
 
   @override
   Widget build(BuildContext context) {
-    final resolvedLines = _resolvedLines();
+    final allLines = _resolvedLines();
+    final trimStart = _trimStartIndex(allLines);
+    final visibleLines =
+        trimStart == null ? allLines : allLines.sublist(trimStart);
+    final lastHighlight = _lastHighlightIndex(allLines);
+    final canRevealPreceding = widget.trimBeforeLastHighlight &&
+        lastHighlight > 0;
+
     final body =
-        resolvedLines.isEmpty ? _emptyState() : _lineList(resolvedLines);
+        visibleLines.isEmpty ? _emptyState() : _lineList(visibleLines);
 
     final scrollable = Scrollbar(
       controller: _scrollController,
@@ -149,7 +167,7 @@ class _LogTextViewState extends State<LogTextView> {
               Positioned(
                 right: 4,
                 bottom: 4,
-                child: _scrollControls(),
+                child: _scrollControls(canRevealPreceding: canRevealPreceding),
               ),
             ],
           )
@@ -162,7 +180,7 @@ class _LogTextViewState extends State<LogTextView> {
     );
   }
 
-  Widget _scrollControls() {
+  Widget _scrollControls({required bool canRevealPreceding}) {
     final idleColor =
         widget.controlColor ?? widget.textStyle.color?.withValues(alpha: 0.55);
     final activeColor =
@@ -173,6 +191,25 @@ class _LogTextViewState extends State<LogTextView> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
+          if (canRevealPreceding)
+            IconButton(
+              tooltip: _showPrecedingLog
+                  ? 'Hide earlier log'
+                  : 'Show earlier log',
+              onPressed: () {
+                setState(() => _showPrecedingLog = !_showPrecedingLog);
+              },
+              iconSize: 20,
+              visualDensity: VisualDensity.compact,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints.tightFor(width: 32, height: 32),
+              icon: Icon(
+                _showPrecedingLog
+                    ? Icons.visibility
+                    : Icons.visibility_off_outlined,
+                color: _showPrecedingLog ? activeColor : idleColor,
+              ),
+            ),
           IconButton(
             tooltip: 'Scroll to bottom',
             onPressed: _scrollToBottomOnce,
@@ -207,6 +244,22 @@ class _LogTextViewState extends State<LogTextView> {
     return [
       for (final line in logText.split('\n')) LogTextLine(text: line),
     ];
+  }
+
+  /// First visible index when trimming; null means show the full log.
+  int? _trimStartIndex(List<LogTextLine> lines) {
+    if (!widget.trimBeforeLastHighlight || _showPrecedingLog) return null;
+    final lastHighlight = _lastHighlightIndex(lines);
+    if (lastHighlight <= 0) return null;
+    return lastHighlight;
+  }
+
+  int _lastHighlightIndex(List<LogTextLine> lines) {
+    var last = -1;
+    for (var index = 0; index < lines.length; index++) {
+      if (_highlightFor(lines[index].text) != null) last = index;
+    }
+    return last;
   }
 
   Widget _emptyState() {
@@ -285,6 +338,8 @@ class _LogTextViewState extends State<LogTextView> {
     final isNearBottom = position.pixels >= position.maxScrollExtent - 50;
     if (_hugBottom && !isNearBottom) {
       setState(() => _hugBottom = false);
+    } else if (!_hugBottom && isNearBottom) {
+      setState(() => _hugBottom = true);
     }
   }
 }

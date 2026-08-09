@@ -79,6 +79,21 @@ void main() {
     });
   });
 
+  group('NiceValueScale', () {
+    test('builds human-round ticks covering the data max', () {
+      final scale = NiceValueScale.forMax(10845);
+      expect(scale.max, 12000);
+      expect(scale.ticks, [0, 2000, 4000, 6000, 8000, 10000, 12000]);
+    });
+
+    test('uses fallback when data max is non-positive', () {
+      final scale = NiceValueScale.forMax(0, fallbackMax: 10000);
+      expect(scale.max, 10000);
+      expect(scale.ticks.first, 0);
+      expect(scale.ticks.last, 10000);
+    });
+  });
+
   group('stableHash and shadeKeyedBy', () {
     test('stableHash is deterministic', () {
       expect('abc'.stableHash, 'abc'.stableHash);

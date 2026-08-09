@@ -64,8 +64,6 @@ class _AppLogViewerState extends State<AppLogViewer> {
   final TextEditingController _filterController = TextEditingController();
   String _filterText = '';
 
-  AppLogViewerStyle get _style => widget.style;
-
   @override
   void initState() {
     super.initState();
@@ -110,17 +108,17 @@ class _AppLogViewerState extends State<AppLogViewer> {
         final allEntries = appLogBuffer.entries;
         final visibleEntries = _applyFilter(allEntries);
         return Material(
-          color: _style.surface,
+          color: widget.style.surface,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(_style.radius),
-            side: BorderSide(color: _style.border),
+            borderRadius: BorderRadius.circular(widget.style.radius),
+            side: BorderSide(color: widget.style.border),
           ),
           clipBehavior: Clip.antiAlias,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _header(visibleEntries.length, allEntries.length),
-              Container(height: 1, color: _style.border),
+              Container(height: 1, color: widget.style.border),
               _viewerBody(visibleEntries),
             ],
           ),
@@ -153,22 +151,22 @@ class _AppLogViewerState extends State<AppLogViewer> {
         : 'Logs ($visibleCount / $totalCount)';
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        _style.spacingMd,
-        _style.spacingSm,
-        _style.spacingSm,
-        _style.spacingSm,
+        widget.style.spacingMd,
+        widget.style.spacingSm,
+        widget.style.spacingSm,
+        widget.style.spacingSm,
       ),
       child: Row(
         children: [
           Text(
             countLabel,
             style: TextStyle(
-              color: _style.textPrimary,
+              color: widget.style.textPrimary,
               fontSize: 15,
               fontWeight: FontWeight.w600,
             ),
           ),
-          SizedBox(width: _style.spacingSm),
+          SizedBox(width: widget.style.spacingSm),
           Expanded(child: _filterField()),
           if (widget.showClearButton) _clearButton(),
         ],
@@ -177,35 +175,35 @@ class _AppLogViewerState extends State<AppLogViewer> {
   }
 
   Widget _filterField() {
-    final borderColor = _filterIsInvalidRegex ? _style.error : _style.border;
+    final borderColor = _filterIsInvalidRegex ? widget.style.error : widget.style.border;
     return TextField(
       controller: _filterController,
       style: TextStyle(
-        color: _style.textPrimary,
+        color: widget.style.textPrimary,
         fontFamily: 'monospace',
         fontSize: 13,
       ),
-      cursorColor: _style.accent,
+      cursorColor: widget.style.accent,
       decoration: InputDecoration(
         isDense: true,
         hintText: 'filter regex… e.g. ERROR| or WARN',
-        hintStyle: TextStyle(color: _style.textTertiary, fontSize: 13),
+        hintStyle: TextStyle(color: widget.style.textTertiary, fontSize: 13),
         filled: true,
-        fillColor: _style.surfaceElevated,
+        fillColor: widget.style.surfaceElevated,
         contentPadding: EdgeInsets.symmetric(
-          horizontal: _style.spacingSm,
-          vertical: _style.spacingXs + 2,
+          horizontal: widget.style.spacingSm,
+          vertical: widget.style.spacingXs + 2,
         ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(_style.radius * 0.67),
+          borderRadius: BorderRadius.circular(widget.style.radius * 0.67),
           borderSide: BorderSide(color: borderColor),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(_style.radius * 0.67),
+          borderRadius: BorderRadius.circular(widget.style.radius * 0.67),
           borderSide: BorderSide(color: borderColor),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(_style.radius * 0.67),
+          borderRadius: BorderRadius.circular(widget.style.radius * 0.67),
           borderSide: BorderSide(color: borderColor, width: 1.5),
         ),
         suffixIcon: _filterText.isEmpty
@@ -217,7 +215,7 @@ class _AppLogViewerState extends State<AppLogViewer> {
                 visualDensity: VisualDensity.compact,
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints.tightFor(width: 28, height: 28),
-                icon: Icon(Icons.cancel, color: _style.textTertiary),
+                icon: Icon(Icons.cancel, color: widget.style.textTertiary),
               ),
       ),
     );
@@ -229,9 +227,9 @@ class _AppLogViewerState extends State<AppLogViewer> {
       onPressed: appLogBuffer.clear,
       iconSize: 18,
       visualDensity: VisualDensity.compact,
-      padding: EdgeInsets.symmetric(horizontal: _style.spacingSm),
+      padding: EdgeInsets.symmetric(horizontal: widget.style.spacingSm),
       constraints: const BoxConstraints.tightFor(width: 36, height: 32),
-      icon: Icon(Icons.clear_all, color: _style.textTertiary),
+      icon: Icon(Icons.clear_all, color: widget.style.textTertiary),
     );
   }
 
@@ -248,17 +246,17 @@ class _AppLogViewerState extends State<AppLogViewer> {
       emptyMessage: widget.emptyMessage,
       maxHeight: widget.maxBodyHeight,
       padding: EdgeInsets.symmetric(
-        horizontal: _style.spacingMd,
-        vertical: _style.spacingSm,
+        horizontal: widget.style.spacingMd,
+        vertical: widget.style.spacingSm,
       ),
       textStyle: TextStyle(
-        color: _style.textSecondary,
+        color: widget.style.textSecondary,
         fontFamily: 'monospace',
         fontSize: widget.logFontSize,
         height: 1.35,
       ),
-      controlColor: _style.textTertiary,
-      controlActiveColor: _style.accent,
+      controlColor: widget.style.textTertiary,
+      controlActiveColor: widget.style.accent,
     );
 
     if (widget.maxBodyHeight != null) return viewer;
@@ -266,9 +264,9 @@ class _AppLogViewerState extends State<AppLogViewer> {
   }
 
   Color _entryColor(AppLogLevel level) => switch (level) {
-        AppLogLevel.info => _style.textSecondary,
-        AppLogLevel.warning => _style.warning,
-        AppLogLevel.error => _style.error,
-        AppLogLevel.fine => _style.textTertiary,
+        AppLogLevel.info => widget.style.textSecondary,
+        AppLogLevel.warning => widget.style.warning,
+        AppLogLevel.error => widget.style.error,
+        AppLogLevel.fine => widget.style.textTertiary,
       };
 }
