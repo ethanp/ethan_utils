@@ -3,12 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ErrorReportDialog extends StatelessWidget {
-  const ErrorReportDialog(
-      {required this.title,
-      required this.userMessage,
-      required this.emailSubject,
-      required this.reportBody,
-      this.emailAddress = 'etahnp@gmail.com'});
+  const ErrorReportDialog({
+    required this.title,
+    required this.userMessage,
+    required this.emailSubject,
+    required this.reportBody,
+    this.emailAddress = 'etahnp@gmail.com',
+  });
 
   final String title;
   final String userMessage;

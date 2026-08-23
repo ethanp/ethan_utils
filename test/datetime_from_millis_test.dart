@@ -21,7 +21,7 @@ void main() {
     });
 
     test('converts non-null nullable int', () {
-      const int? millis = 1000;
+      const int millis = 1000;
       expect(
         millis.dateTimeFromMillis,
         DateTime.fromMillisecondsSinceEpoch(1000),

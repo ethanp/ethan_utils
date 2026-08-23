@@ -18,7 +18,9 @@ void main() {
       expect(const Duration(minutes: 1).formattedElapsed, '1:00');
       expect(const Duration(minutes: 3, seconds: 5).formattedElapsed, '3:05');
       expect(
-          const Duration(minutes: 59, seconds: 59).formattedElapsed, '59:59');
+        const Duration(minutes: 59, seconds: 59).formattedElapsed,
+        '59:59',
+      );
     });
 
     test('uses h:mm:ss from one hour', () {

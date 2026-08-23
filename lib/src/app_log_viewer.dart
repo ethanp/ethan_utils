@@ -67,15 +67,17 @@ class _AppLogViewerState extends State<AppLogViewer> {
   @override
   void initState() {
     super.initState();
-    _filterController.addListener(
-      () => setState(() => _filterText = _filterController.text),
-    );
+    _filterController.addListener(_syncFilterTextFromController);
   }
 
   @override
   void dispose() {
     _filterController.dispose();
     super.dispose();
+  }
+
+  void _syncFilterTextFromController() {
+    setState(() => _filterText = _filterController.text);
   }
 
   List<AppLogEntry> _applyFilter(List<AppLogEntry> entries) {

@@ -109,21 +109,21 @@ class _LogTextViewState extends State<LogTextView> {
     if (widget.controller == null) {
       _ownedController = ScrollController();
     }
-    _scrollController.addListener(_onScrollChanged);
+    _scrollController.addListener(_updateHugBottomFromScroll);
   }
 
   @override
   void didUpdateWidget(LogTextView oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.controller != widget.controller) {
-      oldWidget.controller?.removeListener(_onScrollChanged);
-      _ownedController?.removeListener(_onScrollChanged);
+      oldWidget.controller?.removeListener(_updateHugBottomFromScroll);
+      _ownedController?.removeListener(_updateHugBottomFromScroll);
       _ownedController?.dispose();
       _ownedController = null;
       if (widget.controller == null) {
         _ownedController = ScrollController();
       }
-      _scrollController.addListener(_onScrollChanged);
+      _scrollController.addListener(_updateHugBottomFromScroll);
     }
     if (!widget.trimBeforeLastHighlight) {
       _showPrecedingLog = false;
@@ -136,7 +136,7 @@ class _LogTextViewState extends State<LogTextView> {
 
   @override
   void dispose() {
-    _scrollController.removeListener(_onScrollChanged);
+    _scrollController.removeListener(_updateHugBottomFromScroll);
     _ownedController?.dispose();
     _selectionFocusNode.dispose();
     super.dispose();
@@ -196,9 +196,7 @@ class _LogTextViewState extends State<LogTextView> {
               tooltip: _showPrecedingLog
                   ? 'Hide earlier log'
                   : 'Show earlier log',
-              onPressed: () {
-                setState(() => _showPrecedingLog = !_showPrecedingLog);
-              },
+              onPressed: _togglePrecedingLogVisibility,
               iconSize: 20,
               visualDensity: VisualDensity.compact,
               padding: EdgeInsets.zero,
@@ -332,7 +330,11 @@ class _LogTextViewState extends State<LogTextView> {
     _scrollToBottomOnce();
   }
 
-  void _onScrollChanged() {
+  void _togglePrecedingLogVisibility() {
+    setState(() => _showPrecedingLog = !_showPrecedingLog);
+  }
+
+  void _updateHugBottomFromScroll() {
     if (!_scrollController.hasClients || _programmaticScrollInProgress) return;
     final position = _scrollController.position;
     final isNearBottom = position.pixels >= position.maxScrollExtent - 50;
