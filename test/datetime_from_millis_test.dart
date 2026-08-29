@@ -192,4 +192,22 @@ void main() {
       );
     });
   });
+
+  group('monthDayCaption', () {
+    test('omits year for dates in the current year', () {
+      final currentYear = DateTime.now().year;
+      expect(DateTime(currentYear, 3, 5).monthDayCaption, 'Mar 5');
+    });
+
+    test('adds abbreviated year for prior-year dates', () {
+      expect(DateTime(2023, 12, 16).monthDayCaption, "Dec 16, '23");
+    });
+
+    test('adds abbreviated year for future-year dates', () {
+      expect(
+        DateTime(DateTime.now().year + 1, 3, 5).monthDayCaption,
+        "Mar 5, '${((DateTime.now().year + 1) % 100).toString().padLeft(2, '0')}",
+      );
+    });
+  });
 }

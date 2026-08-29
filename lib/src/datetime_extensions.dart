@@ -64,6 +64,14 @@ extension DateTimeExtensions on DateTime {
   int calendarDayDiff(DateTime other) =>
       toLocal().startOfDay.difference(other.toLocal().startOfDay).inDays.abs();
 
+  /// `Mar 5` in the current year, `Dec 16, '23` for other years.
+  String get monthDayCaption {
+    if (year != DateTime.now().year) {
+      return DateFormat("MMM d, ''yy").format(this);
+    }
+    return DateFormat('MMM d').format(this);
+  }
+
   /// Local calendar date as `m/d/yy` (e.g. `8/23/26`).
   String get mdyy {
     final local = toLocal();
