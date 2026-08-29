@@ -128,6 +128,13 @@ void main() {
     });
   });
 
+  group('mdyy', () {
+    test('formats local calendar date as m/d/yy', () {
+      expect(DateTime(2026, 8, 23).mdyy, '8/23/26');
+      expect(DateTime(2009, 1, 5).mdyy, '1/5/09');
+    });
+  });
+
   group('relativeTimeAgo', () {
     test('uses compact units through years', () {
       final now = DateTime.now();

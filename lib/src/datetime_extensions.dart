@@ -64,6 +64,13 @@ extension DateTimeExtensions on DateTime {
   int calendarDayDiff(DateTime other) =>
       toLocal().startOfDay.difference(other.toLocal().startOfDay).inDays.abs();
 
+  /// Local calendar date as `m/d/yy` (e.g. `8/23/26`).
+  String get mdyy {
+    final local = toLocal();
+    final year = (local.year % 100).toString().padLeft(2, '0');
+    return '${local.month}/${local.day}/$year';
+  }
+
   /// Compact relative label (`just now`, `5m ago`, `3d ago`, `2w ago`,
   /// `4mo ago`, `1y ago`). When [includeClock] is true and the span is a
   /// week or longer, returns a calendar date with time instead.
