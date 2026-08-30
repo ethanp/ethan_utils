@@ -57,8 +57,11 @@ void main() {
         '3:05',
       );
       expect(
-        const Duration(hours: 1, minutes: 15, seconds: 30)
-            .formattedMinutesSeconds,
+        const Duration(
+          hours: 1,
+          minutes: 15,
+          seconds: 30,
+        ).formattedMinutesSeconds,
         '75:30',
       );
     });

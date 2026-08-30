@@ -38,19 +38,15 @@ void runWithAppLogZone(
         )
       : null;
 
-  runZonedGuarded(
-    appRunner,
-    (error, stackTrace) {
-      appLogBuffer.record(
-        component: 'Zone',
-        level: AppLogLevel.error,
-        message: 'Uncaught async error',
-        error: error,
-        stackTrace: stackTrace,
-      );
-    },
-    zoneSpecification: logZoneSpecification,
-  );
+  runZonedGuarded(appRunner, (error, stackTrace) {
+    appLogBuffer.record(
+      component: 'Zone',
+      level: AppLogLevel.error,
+      message: 'Uncaught async error',
+      error: error,
+      stackTrace: stackTrace,
+    );
+  }, zoneSpecification: logZoneSpecification);
 }
 
 void _installFlutterErrorCapture({

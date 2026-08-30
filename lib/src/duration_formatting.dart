@@ -18,14 +18,12 @@ extension DurationFormatting on Duration {
     return '${duration.inMinutes}:$seconds';
   }
 
-  String _colonHms({
-    required bool padMinutes,
-    required bool padHours,
-  }) {
+  String _colonHms({required bool padMinutes, required bool padHours}) {
     final seconds = inSeconds.remainder(60).toString().padLeft(2, '0');
     if (inHours < 1) {
-      final minutes =
-          padMinutes ? inMinutes.toString().padLeft(2, '0') : '$inMinutes';
+      final minutes = padMinutes
+          ? inMinutes.toString().padLeft(2, '0')
+          : '$inMinutes';
       return '$minutes:$seconds';
     }
     final hours = padHours ? inHours.toString().padLeft(2, '0') : '$inHours';

@@ -2,36 +2,25 @@ import 'dart:collection';
 
 import 'package:flutter/foundation.dart';
 
-enum AppLogLevel {
+enum AppLogLevel({
+  /// Stable tag used in [AppLogEntry.formattedText] and filterable via regex.
+  required final String tag,
+}) {
   info(tag: 'INFO'),
   warning(tag: 'WARN'),
   error(tag: 'ERROR'),
-  fine(tag: 'FINE');
-
-  const AppLogLevel({required this.tag});
-
-  /// Stable tag used in [AppLogEntry.formattedText] and filterable via regex.
-  final String tag;
+  fine(tag: 'FINE'),
 }
 
 @immutable
-class AppLogEntry {
-  const AppLogEntry({
-    required this.timestamp,
-    required this.component,
-    required this.level,
-    required this.message,
-    this.error,
-    this.stackTrace,
-  });
-
-  final DateTime timestamp;
-  final String component;
-  final AppLogLevel level;
-  final String message;
-  final Object? error;
-  final StackTrace? stackTrace;
-
+class const AppLogEntry({
+  required final DateTime timestamp,
+  required final String component,
+  required final AppLogLevel level,
+  required final String message,
+  final Object? error,
+  final StackTrace? stackTrace,
+}) {
   String get formattedText {
     final logMessageBuffer = StringBuffer(_logLinePrefix())..write(message);
 
@@ -50,22 +39,20 @@ class AppLogEntry {
 
   String _formattedTimestamp() {
     String pad(int value) => value.toString().padLeft(2, '0');
-    final centiseconds =
-        (timestamp.millisecond ~/ 10).toString().padLeft(2, '0');
+    final centiseconds = (timestamp.millisecond ~/ 10).toString().padLeft(
+      2,
+      '0',
+    );
     return '${pad(timestamp.hour)}:${pad(timestamp.minute)}:'
         '${pad(timestamp.second)}.$centiseconds';
   }
 }
 
-class AppLogBuffer extends ChangeNotifier {
-  AppLogBuffer({
-    this.maxEntries = 1000,
-    DateTime Function()? clock,
-  })  : assert(maxEntries > 0),
-        _clock = clock ?? DateTime.now;
+class AppLogBuffer({final int maxEntries = 1000, DateTime Function()? clock})
+    extends ChangeNotifier {
+  this : assert(maxEntries > 0);
 
-  final int maxEntries;
-  final DateTime Function() _clock;
+  final DateTime Function() _clock = clock ?? DateTime.now;
   final List<AppLogEntry> _entries = [];
 
   UnmodifiableListView<AppLogEntry> get entries =>
@@ -92,23 +79,12 @@ class AppLogBuffer extends ChangeNotifier {
 
   void capturePrintLine(String message, {String component = 'DartPrint'}) {
     if (_looksLikeStructuredAppLogLine(message)) return;
-    record(
-      component: component,
-      level: AppLogLevel.info,
-      message: message,
-    );
+    record(component: component, level: AppLogLevel.info, message: message);
   }
 
-  void captureDebugPrintLine(
-    String message, {
-    String component = 'Flutter',
-  }) {
+  void captureDebugPrintLine(String message, {String component = 'Flutter'}) {
     if (_looksLikeStructuredAppLogLine(message)) return;
-    record(
-      component: component,
-      level: AppLogLevel.info,
-      message: message,
-    );
+    record(component: component, level: AppLogLevel.info, message: message);
   }
 
   void clear() {

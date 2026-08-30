@@ -5,8 +5,7 @@ extension ContextTextSnackBar on BuildContext {
     String message, {
     Duration duration = const Duration(milliseconds: 4000),
   }) {
-    ScaffoldMessenger.of(this).showSnackBar(
-      SnackBar(content: Text(message), duration: duration),
-    );
+    ScaffoldMessenger.of(this)
+        .showSnackBar(SnackBar(content: Text(message), duration: duration));
   }
 }

@@ -4,63 +4,38 @@ import 'app_log_buffer.dart';
 import 'log_text_view.dart';
 
 /// Colors and spacing for [AppLogViewer], so apps can match their own theme.
-class AppLogViewerStyle {
-  const AppLogViewerStyle({
-    required this.surface,
-    required this.surfaceElevated,
-    required this.border,
-    required this.accent,
-    required this.textPrimary,
-    required this.textSecondary,
-    required this.textTertiary,
-    required this.warning,
-    required this.error,
-    this.radius = 12,
-    this.spacingXs = 4,
-    this.spacingSm = 8,
-    this.spacingMd = 12,
-    this.spacingXl = 24,
-  });
-
-  final Color surface;
-  final Color surfaceElevated;
-  final Color border;
-  final Color accent;
-  final Color textPrimary;
-  final Color textSecondary;
-  final Color textTertiary;
-  final Color warning;
-  final Color error;
-  final double radius;
-  final double spacingXs;
-  final double spacingSm;
-  final double spacingMd;
-  final double spacingXl;
-}
+class const AppLogViewerStyle({
+  required final Color surface,
+  required final Color surfaceElevated,
+  required final Color border,
+  required final Color accent,
+  required final Color textPrimary,
+  required final Color textSecondary,
+  required final Color textTertiary,
+  required final Color warning,
+  required final Color error,
+  final double radius = 12,
+  final double spacingXs = 4,
+  final double spacingSm = 8,
+  final double spacingMd = 12,
+  final double spacingXl = 24,
+});
 
 /// In-app viewer for [appLogBuffer] entries (filter, clear, hug).
-class AppLogViewer extends StatefulWidget {
-  const AppLogViewer({
-    required this.style,
-    this.emptyMessage = 'No logs yet',
-    this.showClearButton = true,
-    this.logFontSize = 12,
-    this.maxBodyHeight,
-  });
-
-  final AppLogViewerStyle style;
-  final String emptyMessage;
-  final bool showClearButton;
-  final double logFontSize;
+class const AppLogViewer({
+  required final AppLogViewerStyle style,
+  final String emptyMessage = 'No logs yet',
+  final bool showClearButton = true,
+  final double logFontSize = 12,
 
   /// When set, the log body is height-capped instead of [Expanded].
-  final double? maxBodyHeight;
-
+  final double? maxBodyHeight,
+}) extends StatefulWidget {
   @override
   State<AppLogViewer> createState() => _AppLogViewerState();
 }
 
-class _AppLogViewerState extends State<AppLogViewer> {
+class _AppLogViewerState() extends State<AppLogViewer> {
   final TextEditingController _filterController = TextEditingController();
   String _filterText = '';
 
@@ -177,7 +152,9 @@ class _AppLogViewerState extends State<AppLogViewer> {
   }
 
   Widget _filterField() {
-    final borderColor = _filterIsInvalidRegex ? widget.style.error : widget.style.border;
+    final borderColor = _filterIsInvalidRegex
+        ? widget.style.error
+        : widget.style.border;
     return TextField(
       controller: _filterController,
       style: TextStyle(
@@ -216,7 +193,10 @@ class _AppLogViewerState extends State<AppLogViewer> {
                 iconSize: 16,
                 visualDensity: VisualDensity.compact,
                 padding: EdgeInsets.zero,
-                constraints: const BoxConstraints.tightFor(width: 28, height: 28),
+                constraints: const BoxConstraints.tightFor(
+                  width: 28,
+                  height: 28,
+                ),
                 icon: Icon(Icons.cancel, color: widget.style.textTertiary),
               ),
       ),
@@ -238,10 +218,7 @@ class _AppLogViewerState extends State<AppLogViewer> {
   Widget _viewerBody(List<AppLogEntry> entries) {
     final logLines = [
       for (final entry in entries)
-        LogTextLine(
-          text: entry.formattedText,
-          color: _entryColor(entry.level),
-        ),
+        LogTextLine(text: entry.formattedText, color: _entryColor(entry.level)),
     ];
     final viewer = LogTextView(
       lines: logLines,
@@ -266,9 +243,9 @@ class _AppLogViewerState extends State<AppLogViewer> {
   }
 
   Color _entryColor(AppLogLevel level) => switch (level) {
-        AppLogLevel.info => widget.style.textSecondary,
-        AppLogLevel.warning => widget.style.warning,
-        AppLogLevel.error => widget.style.error,
-        AppLogLevel.fine => widget.style.textTertiary,
-      };
+    AppLogLevel.info => widget.style.textSecondary,
+    AppLogLevel.warning => widget.style.warning,
+    AppLogLevel.error => widget.style.error,
+    AppLogLevel.fine => widget.style.textTertiary,
+  };
 }

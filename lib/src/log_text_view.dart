@@ -2,31 +2,19 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 /// One rendered log line for [LogTextView].
-class LogTextLine {
-  const LogTextLine({
-    required this.text,
-    this.color,
-    this.fontWeight,
-  });
-
-  final String text;
-  final Color? color;
-  final FontWeight? fontWeight;
-}
+class const LogTextLine({
+  required final String text,
+  final Color? color,
+  final FontWeight? fontWeight,
+});
 
 /// Pattern-based color override applied after a line's base color.
-class LogLineHighlight {
-  const LogLineHighlight({
-    required this.pattern,
-    required this.color,
-    this.fontWeight = FontWeight.w600,
-  });
-
+class const LogLineHighlight({
   /// Matched against each log line (without a trailing newline).
-  final Pattern pattern;
-  final Color color;
-  final FontWeight fontWeight;
-
+  required final Pattern pattern,
+  required final Color color,
+  final FontWeight fontWeight = FontWeight.w600,
+}) {
   bool matches(String line) {
     final pattern = this.pattern;
     if (pattern is RegExp) return pattern.hasMatch(line);
@@ -38,62 +26,45 @@ class LogLineHighlight {
 ///
 /// Pass either [log] (split on newlines) or [lines]. When both are provided,
 /// [lines] wins.
-class LogTextView extends StatefulWidget {
-  const LogTextView({
-    super.key,
-    this.log,
-    this.lines,
-    required this.textStyle,
-    this.controller,
-    this.maxHeight,
-    this.emptyMessage = '(no log yet)',
-    this.highlights = const [],
-    this.trimBeforeLastHighlight = false,
-    this.padding = const EdgeInsets.all(12),
-    this.reverse = false,
-    this.showScrollControls = true,
-    this.controlColor,
-    this.controlActiveColor,
-  });
+class const LogTextView({
+  super.key,
 
   /// Raw log dump; split on `\n` into lines.
-  final String? log;
+  final String? log,
 
   /// Pre-colored lines (e.g. from [AppLogEntry] level mapping).
-  final List<LogTextLine>? lines;
+  final List<LogTextLine>? lines,
 
   /// Base monospace style; per-line color/weight overlays this.
-  final TextStyle textStyle;
-
-  final ScrollController? controller;
-  final double? maxHeight;
-  final String emptyMessage;
-  final List<LogLineHighlight> highlights;
+  required final TextStyle textStyle,
+  final ScrollController? controller,
+  final double? maxHeight,
+  final String emptyMessage = '(no log yet)',
+  final List<LogLineHighlight> highlights = const [],
 
   /// When true, hide lines before the last highlight match until the eye
   /// toggle reveals them (e.g. pre–hot-restart flutter run output).
-  final bool trimBeforeLastHighlight;
-
-  final EdgeInsetsGeometry padding;
+  final bool trimBeforeLastHighlight = false,
+  final EdgeInsetsGeometry padding = const EdgeInsets.all(12),
 
   /// When true and scroll controls are off with no external controller, uses a
   /// reverse list so newest content stays visible.
-  final bool reverse;
+  final bool reverse = false,
 
   /// Icon-only scroll-to-bottom and hug-to-bottom controls.
-  final bool showScrollControls;
+  final bool showScrollControls = true,
 
   /// Idle icon color for scroll controls.
-  final Color? controlColor;
+  final Color? controlColor,
 
   /// Color when hug-to-bottom is active.
-  final Color? controlActiveColor;
-
+  final Color? controlActiveColor,
+}) extends StatefulWidget {
   @override
   State<LogTextView> createState() => _LogTextViewState();
 }
 
-class _LogTextViewState extends State<LogTextView> {
+class _LogTextViewState() extends State<LogTextView> {
   final FocusNode _selectionFocusNode = FocusNode(debugLabel: 'LogTextView');
   ScrollController? _ownedController;
   bool _hugBottom = true;
@@ -129,8 +100,9 @@ class _LogTextViewState extends State<LogTextView> {
       _showPrecedingLog = false;
     }
     if (_hugBottom) {
-      WidgetsBinding.instance
-          .addPostFrameCallback((_) => _scrollToBottomIfHugging());
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _scrollToBottomIfHugging(),
+      );
     }
   }
 
@@ -146,19 +118,16 @@ class _LogTextViewState extends State<LogTextView> {
   Widget build(BuildContext context) {
     final allLines = _resolvedLines();
     final trimStart = _trimStartIndex(allLines);
-    final visibleLines =
-        trimStart == null ? allLines : allLines.sublist(trimStart);
+    final visibleLines = trimStart == null
+        ? allLines
+        : allLines.sublist(trimStart);
     final lastHighlight = _lastHighlightIndex(allLines);
-    final canRevealPreceding = widget.trimBeforeLastHighlight &&
-        lastHighlight > 0;
+    final canRevealPreceding =
+        widget.trimBeforeLastHighlight && lastHighlight > 0;
 
-    final body =
-        visibleLines.isEmpty ? _emptyState() : _lineList(visibleLines);
+    final body = visibleLines.isEmpty ? _emptyState() : _lineList(visibleLines);
 
-    final scrollable = Scrollbar(
-      controller: _scrollController,
-      child: body,
-    );
+    final scrollable = Scrollbar(controller: _scrollController, child: body);
 
     final withControls = widget.showScrollControls
         ? Stack(
@@ -184,7 +153,9 @@ class _LogTextViewState extends State<LogTextView> {
     final idleColor =
         widget.controlColor ?? widget.textStyle.color?.withValues(alpha: 0.55);
     final activeColor =
-        widget.controlActiveColor ?? widget.textStyle.color ?? Colors.blueAccent;
+        widget.controlActiveColor ??
+        widget.textStyle.color ??
+        Colors.blueAccent;
 
     return Material(
       type: MaterialType.transparency,
@@ -239,9 +210,7 @@ class _LogTextViewState extends State<LogTextView> {
     if (providedLines != null) return providedLines;
     final logText = widget.log;
     if (logText == null || logText.isEmpty) return const [];
-    return [
-      for (final line in logText.split('\n')) LogTextLine(text: line),
-    ];
+    return [for (final line in logText.split('\n')) LogTextLine(text: line)];
   }
 
   /// First visible index when trimming; null means show the full log.
@@ -280,7 +249,8 @@ class _LogTextViewState extends State<LogTextView> {
       selectionControls: cupertinoTextSelectionHandleControls,
       child: ListView.builder(
         controller: _scrollController,
-        reverse: widget.reverse &&
+        reverse:
+            widget.reverse &&
             widget.controller == null &&
             !widget.showScrollControls,
         padding: widget.padding,
@@ -292,7 +262,8 @@ class _LogTextViewState extends State<LogTextView> {
             line.text,
             style: widget.textStyle.copyWith(
               color: highlight?.color ?? line.color ?? widget.textStyle.color,
-              fontWeight: highlight?.fontWeight ??
+              fontWeight:
+                  highlight?.fontWeight ??
                   line.fontWeight ??
                   widget.textStyle.fontWeight,
             ),

@@ -1,16 +1,9 @@
-class ErrorReportBody {
-  const ErrorReportBody({
-    required this.summary,
-    this.sections = const [],
-    this.stackTrace,
-    this.createdAt,
-  });
-
-  final String summary;
-  final List<ErrorReportSection> sections;
-  final StackTrace? stackTrace;
-  final DateTime? createdAt;
-
+class const ErrorReportBody({
+  required final String summary,
+  final List<ErrorReportSection> sections = const [],
+  final StackTrace? stackTrace,
+  final DateTime? createdAt,
+}) {
   @override
   String toString() {
     final reportLines = <String>[
@@ -46,29 +39,20 @@ ErrorReportSection section({
 }
 
 class ErrorReportSection {
-  const ErrorReportSection(this.title, this.lines);
+  const new(this.title, this.lines);
 
-  ErrorReportSection.fields(
-    this.title,
-    List<ErrorReportField> fields,
-  ) : lines = fields
-            .map((reportField) => '${reportField.name}: ${reportField.text}')
-            .toList();
+  new fields(this.title, List<ErrorReportField> fields)
+    : lines = fields
+          .map((reportField) => '${reportField.name}: ${reportField.text}')
+          .toList();
 
   final String title;
   final List<String> lines;
 }
 
-ErrorReportField field({
-  required String name,
-  required Object? value,
-}) =>
+ErrorReportField field({required String name, required Object? value}) =>
     ErrorReportField(name, value);
 
-class ErrorReportField {
-  ErrorReportField(this.name, Object? fieldValue)
-      : text = fieldValue?.toString() ?? '<missing>';
-
-  final String name;
-  final String text;
+class ErrorReportField(final String name, Object? fieldValue) {
+  final String text = fieldValue?.toString() ?? '<missing>';
 }

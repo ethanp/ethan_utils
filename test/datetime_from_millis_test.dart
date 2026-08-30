@@ -5,10 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('dateTimeFromMillis', () {
     test('converts int milliseconds', () {
-      expect(
-        0.dateTimeFromMillis,
-        DateTime.fromMillisecondsSinceEpoch(0),
-      );
+      expect(0.dateTimeFromMillis, DateTime.fromMillisecondsSinceEpoch(0));
       expect(
         1700000000000.dateTimeFromMillis,
         DateTime.fromMillisecondsSinceEpoch(1700000000000),
@@ -147,10 +144,7 @@ void main() {
         now.subtract(const Duration(hours: 3)).relativeTimeAgo(),
         '3h ago',
       );
-      expect(
-        now.subtract(const Duration(days: 2)).relativeTimeAgo(),
-        '2d ago',
-      );
+      expect(now.subtract(const Duration(days: 2)).relativeTimeAgo(), '2d ago');
       expect(
         now.subtract(const Duration(days: 14)).relativeTimeAgo(),
         '2w ago',
@@ -182,14 +176,8 @@ void main() {
         now.subtract(const Duration(minutes: 5)).relativeTimeShort(),
         '5m',
       );
-      expect(
-        now.subtract(const Duration(hours: 3)).relativeTimeShort(),
-        '3h',
-      );
-      expect(
-        now.subtract(const Duration(days: 2)).relativeTimeShort(),
-        '2d',
-      );
+      expect(now.subtract(const Duration(hours: 3)).relativeTimeShort(), '3h');
+      expect(now.subtract(const Duration(days: 2)).relativeTimeShort(), '2d');
     });
   });
 

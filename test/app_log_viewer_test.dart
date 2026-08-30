@@ -26,10 +26,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: SizedBox(
-            height: 400,
-            child: AppLogViewer(style: _style),
-          ),
+          body: SizedBox(height: 400, child: AppLogViewer(style: _style)),
         ),
       ),
     );
@@ -50,10 +47,7 @@ void main() {
     await tester.pumpWidget(
       CupertinoApp(
         home: CupertinoPageScaffold(
-          child: SizedBox(
-            height: 400,
-            child: AppLogViewer(style: _style),
-          ),
+          child: SizedBox(height: 400, child: AppLogViewer(style: _style)),
         ),
       ),
     );

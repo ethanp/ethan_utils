@@ -17,11 +17,7 @@ import 'app_log_buffer.dart';
 /// _log.warn('Watch out');
 /// _log.error('Failed', exception, stackTrace);
 /// ```
-class ELogger {
-  final String component;
-
-  const ELogger(this.component);
-
+class const ELogger(final String component) {
   /// When true, [fine] records to [appLogBuffer] and mirrors to the console in
   /// debug mode. Default off — set from `main()` while refining behavior.
   static bool fineEnabled = false;
@@ -75,9 +71,9 @@ class ELogger {
   }
 
   static int _developerLogLevel(AppLogLevel level) => switch (level) {
-        AppLogLevel.fine => 500,
-        AppLogLevel.info => 800,
-        AppLogLevel.warning => 900,
-        AppLogLevel.error => 1000,
-      };
+    AppLogLevel.fine => 500,
+    AppLogLevel.info => 800,
+    AppLogLevel.warning => 900,
+    AppLogLevel.error => 1000,
+  };
 }

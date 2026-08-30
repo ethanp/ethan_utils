@@ -6,17 +6,15 @@ extension ListExtensions<T> on List<T> {
   void sortOn<U extends Comparable>(
     U Function(T) fn, {
     bool descending = false,
-  }) =>
-      sort(
-        (a, b) => descending ? fn(b).compareTo(fn(a)) : fn(a).compareTo(fn(b)),
-      );
+  }) => sort(
+    (a, b) => descending ? fn(b).compareTo(fn(a)) : fn(a).compareTo(fn(b)),
+  );
 
   /// Return sorted copy by selector.
   List<T> sortedOn<U extends Comparable>(
     U Function(T) fn, {
     bool descending = false,
-  }) =>
-      [...this]..sortOn(fn, descending: descending);
+  }) => [...this]..sortOn(fn, descending: descending);
 
   /// Group elements by key.
   Map<U, List<T>> groupBy<U>(U Function(T) fn) {

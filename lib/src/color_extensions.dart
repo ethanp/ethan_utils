@@ -17,8 +17,10 @@ extension ColorShadeKeyedBy on Color {
     final lightnessStep = (shadeSeed % 5) - 2;
     final saturationStep = ((shadeSeed ~/ 5) % 3) - 1;
     final lightness = (hsl.lightness + lightnessStep * 0.08).clamp(0.32, 0.78);
-    final saturation =
-        (hsl.saturation + saturationStep * 0.08).clamp(0.42, 0.95);
+    final saturation = (hsl.saturation + saturationStep * 0.08).clamp(
+      0.42,
+      0.95,
+    );
     return hsl.withLightness(lightness).withSaturation(saturation).toColor();
   }
 }

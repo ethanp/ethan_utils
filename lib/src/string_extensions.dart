@@ -31,9 +31,9 @@ extension StringExtensions on String {
 
   /// Convert camelCase to snake_case.
   String get snakeCase => replaceAllMapped(
-        _upperCase,
-        (match) => '_${match.group(0)!.toLowerCase()}',
-      );
+    _upperCase,
+    (match) => '_${match.group(0)!.toLowerCase()}',
+  );
 
   /// Convert camelCase to Title Case (e.g. `injuryHistory` -> `Injury History`).
   String get camelToTitleCase =>

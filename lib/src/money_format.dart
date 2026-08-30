@@ -14,8 +14,10 @@ String formatCents(int cents) => _currencyFormat.format(cents / 100);
 String formatCentsCompact(int cents) {
   final dollars = cents / 100;
   if (dollars.abs() >= 1000) {
-    return NumberFormat.compactCurrency(symbol: r'$', decimalDigits: 1)
-        .format(dollars);
+    return NumberFormat.compactCurrency(
+      symbol: r'$',
+      decimalDigits: 1,
+    ).format(dollars);
   }
   return formatCents(cents);
 }

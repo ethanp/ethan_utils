@@ -1,6 +1,4 @@
-class ImageBytes {
-  const ImageBytes._();
-
+class const ImageBytes._() {
   static bool hasSupportedImageHeader(List<int> imageBytes) {
     if (imageBytes.length < 4) return false;
     if (_hasPngHeader(imageBytes)) return true;

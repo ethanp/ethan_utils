@@ -20,15 +20,13 @@ extension ContextExtensions on BuildContext {
   }
 
   Future<T?> push<T>(Widget widget) {
-    return Navigator.of(this).push<T>(
-      CupertinoPageRoute(builder: (_) => widget),
-    );
+    return Navigator.of(this)
+        .push<T>(CupertinoPageRoute(builder: (_) => widget));
   }
 
   void pushReplacementPage(Widget widget) {
-    Navigator.of(this).pushReplacement(
-      CupertinoPageRoute(builder: (_) => widget),
-    );
+    Navigator.of(this)
+        .pushReplacement(CupertinoPageRoute(builder: (_) => widget));
   }
 
   void pop<T>([T? result]) => Navigator.of(this).pop(result);
