@@ -1,8 +1,8 @@
 import 'package:flutter/painting.dart';
 
-/// Painted text width via [TextPainter].
-extension TextPaintMeasure on String {
-  double measureWidth(TextStyle style, {int maxLines = 1}) {
+/// Width after [TextPainter.layout], not a character count.
+extension StringLaidOutWidth on String {
+  double laidOutWidth(TextStyle style, {int maxLines = 1}) {
     final textPainter = TextPainter(
       text: TextSpan(text: this, style: style),
       textDirection: TextDirection.ltr,
@@ -12,12 +12,12 @@ extension TextPaintMeasure on String {
   }
 }
 
-/// Widest painted width among strings.
-extension TextsPaintMeasure on Iterable<String> {
-  double maxPaintedWidth(TextStyle style, {int maxLines = 1}) {
+/// Widest [laidOutWidth] among the strings.
+extension StringsWidestLaidOutWidth on Iterable<String> {
+  double widestLaidOutWidth(TextStyle style, {int maxLines = 1}) {
     var widest = 0.0;
     for (final text in this) {
-      final width = text.measureWidth(style, maxLines: maxLines);
+      final width = text.laidOutWidth(style, maxLines: maxLines);
       if (width > widest) widest = width;
     }
     return widest;

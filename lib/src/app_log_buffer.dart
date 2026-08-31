@@ -22,7 +22,8 @@ class const AppLogEntry({
   final StackTrace? stackTrace,
 }) {
   String get formattedText {
-    final logMessageBuffer = StringBuffer(_logLinePrefix())..write(message);
+    final logMessageBuffer = StringBuffer(_bracketedClockTagAndComponent())
+      ..write(message);
 
     if (error != null) {
       logMessageBuffer.write('\n  error: $error');
@@ -34,17 +35,18 @@ class const AppLogEntry({
     return logMessageBuffer.toString();
   }
 
-  String _logLinePrefix() =>
-      '[${_formattedTimestamp()}|${level.tag}|$component] ';
+  String _bracketedClockTagAndComponent() =>
+      '[${_hhMmSsWithCentiseconds()}|${level.tag}|$component] ';
 
-  String _formattedTimestamp() {
-    String pad(int value) => value.toString().padLeft(2, '0');
+  String _hhMmSsWithCentiseconds() {
+    final hour = timestamp.hour.toString().padLeft(2, '0');
+    final minute = timestamp.minute.toString().padLeft(2, '0');
+    final second = timestamp.second.toString().padLeft(2, '0');
     final centiseconds = (timestamp.millisecond ~/ 10).toString().padLeft(
       2,
       '0',
     );
-    return '${pad(timestamp.hour)}:${pad(timestamp.minute)}:'
-        '${pad(timestamp.second)}.$centiseconds';
+    return '$hour:$minute:$second.$centiseconds';
   }
 }
 
@@ -95,11 +97,11 @@ class AppLogBuffer({final int maxEntries = 1000, DateTime Function()? clock})
 
   void _append(AppLogEntry appLogEntry) {
     _entries.add(appLogEntry);
-    _trimOldEntriesIfNeeded();
+    _dropOldestPastMaxEntries();
     notifyListeners();
   }
 
-  void _trimOldEntriesIfNeeded() {
+  void _dropOldestPastMaxEntries() {
     if (_entries.length <= maxEntries) return;
     final overflowEntryCount = _entries.length - maxEntries;
     _entries.removeRange(0, overflowEntryCount);

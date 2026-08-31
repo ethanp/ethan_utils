@@ -117,11 +117,11 @@ void main() {
     });
   });
 
-  group('measureWidth', () {
+  group('laidOutWidth', () {
     test('returns positive width', () {
       const style = TextStyle(fontSize: 14);
-      expect('Hello'.measureWidth(style), greaterThan(0));
-      expect(['a', 'www'].maxPaintedWidth(style), greaterThan(0));
+      expect('Hello'.laidOutWidth(style), greaterThan(0));
+      expect(['a', 'www'].widestLaidOutWidth(style), greaterThan(0));
     });
   });
 

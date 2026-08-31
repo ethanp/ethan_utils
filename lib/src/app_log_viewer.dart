@@ -55,7 +55,7 @@ class _AppLogViewerState() extends State<AppLogViewer> {
     setState(() => _filterText = _filterController.text);
   }
 
-  List<AppLogEntry> _applyFilter(List<AppLogEntry> entries) {
+  List<AppLogEntry> _entriesMatchingFilterRegex(List<AppLogEntry> entries) {
     if (_filterText.isEmpty) return entries;
     try {
       final regex = RegExp(_filterText, caseSensitive: false);
@@ -83,7 +83,7 @@ class _AppLogViewerState() extends State<AppLogViewer> {
       animation: appLogBuffer,
       builder: (context, child) {
         final allEntries = appLogBuffer.entries;
-        final visibleEntries = _applyFilter(allEntries);
+        final visibleEntries = _entriesMatchingFilterRegex(allEntries);
         return Material(
           color: widget.style.surface,
           shape: RoundedRectangleBorder(
@@ -96,7 +96,7 @@ class _AppLogViewerState() extends State<AppLogViewer> {
             children: [
               _header(visibleEntries.length, allEntries.length),
               Container(height: 1, color: widget.style.border),
-              _viewerBody(visibleEntries),
+              _logTextPane(visibleEntries),
             ],
           ),
         );
@@ -215,10 +215,13 @@ class _AppLogViewerState() extends State<AppLogViewer> {
     );
   }
 
-  Widget _viewerBody(List<AppLogEntry> entries) {
+  Widget _logTextPane(List<AppLogEntry> entries) {
     final logLines = [
       for (final entry in entries)
-        LogTextLine(text: entry.formattedText, color: _entryColor(entry.level)),
+        LogTextLine(
+          text: entry.formattedText,
+          color: _colorForLogLevel(entry.level),
+        ),
     ];
     final viewer = LogTextView(
       lines: logLines,
@@ -242,7 +245,7 @@ class _AppLogViewerState() extends State<AppLogViewer> {
     return Expanded(child: viewer);
   }
 
-  Color _entryColor(AppLogLevel level) => switch (level) {
+  Color _colorForLogLevel(AppLogLevel level) => switch (level) {
     AppLogLevel.info => widget.style.textSecondary,
     AppLogLevel.warning => widget.style.warning,
     AppLogLevel.error => widget.style.error,

@@ -23,10 +23,10 @@ class const ELogger(final String component) {
   static bool fineEnabled = false;
 
   void log(String message) =>
-      _record(level: AppLogLevel.info, message: message);
+      _writeToAppLogAndDebugConsole(level: AppLogLevel.info, message: message);
 
   void warn(String message, [Object? error, StackTrace? stackTrace]) {
-    _record(
+    _writeToAppLogAndDebugConsole(
       level: AppLogLevel.warning,
       message: message,
       error: error,
@@ -35,7 +35,7 @@ class const ELogger(final String component) {
   }
 
   void error(String message, [Object? error, StackTrace? stackTrace]) {
-    _record(
+    _writeToAppLogAndDebugConsole(
       level: AppLogLevel.error,
       message: message,
       error: error,
@@ -46,10 +46,10 @@ class const ELogger(final String component) {
   /// Verbose diagnostics; no-op unless [fineEnabled] is true.
   void fine(String message) {
     if (!fineEnabled) return;
-    _record(level: AppLogLevel.fine, message: message);
+    _writeToAppLogAndDebugConsole(level: AppLogLevel.fine, message: message);
   }
 
-  void _record({
+  void _writeToAppLogAndDebugConsole({
     required AppLogLevel level,
     required String message,
     Object? error,

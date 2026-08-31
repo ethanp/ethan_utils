@@ -116,16 +116,18 @@ class _LogTextViewState() extends State<LogTextView> {
 
   @override
   Widget build(BuildContext context) {
-    final allLines = _resolvedLines();
-    final trimStart = _trimStartIndex(allLines);
-    final visibleLines = trimStart == null
+    final allLines = _linesFromProvidedOrSplitLog();
+    final firstVisibleIndex = _firstVisibleIndexHidingEarlierLog(allLines);
+    final visibleLines = firstVisibleIndex == null
         ? allLines
-        : allLines.sublist(trimStart);
+        : allLines.sublist(firstVisibleIndex);
     final lastHighlight = _lastHighlightIndex(allLines);
     final canRevealPreceding =
         widget.trimBeforeLastHighlight && lastHighlight > 0;
 
-    final body = visibleLines.isEmpty ? _emptyState() : _lineList(visibleLines);
+    final body = visibleLines.isEmpty
+        ? _emptyState()
+        : _selectableLogLines(visibleLines);
 
     final scrollable = Scrollbar(controller: _scrollController, child: body);
 
@@ -205,7 +207,7 @@ class _LogTextViewState() extends State<LogTextView> {
     );
   }
 
-  List<LogTextLine> _resolvedLines() {
+  List<LogTextLine> _linesFromProvidedOrSplitLog() {
     final providedLines = widget.lines;
     if (providedLines != null) return providedLines;
     final logText = widget.log;
@@ -213,8 +215,7 @@ class _LogTextViewState() extends State<LogTextView> {
     return [for (final line in logText.split('\n')) LogTextLine(text: line)];
   }
 
-  /// First visible index when trimming; null means show the full log.
-  int? _trimStartIndex(List<LogTextLine> lines) {
+  int? _firstVisibleIndexHidingEarlierLog(List<LogTextLine> lines) {
     if (!widget.trimBeforeLastHighlight || _showPrecedingLog) return null;
     final lastHighlight = _lastHighlightIndex(lines);
     if (lastHighlight <= 0) return null;
@@ -224,7 +225,7 @@ class _LogTextViewState() extends State<LogTextView> {
   int _lastHighlightIndex(List<LogTextLine> lines) {
     var last = -1;
     for (var index = 0; index < lines.length; index++) {
-      if (_highlightFor(lines[index].text) != null) last = index;
+      if (_firstHighlightMatchingLine(lines[index].text) != null) last = index;
     }
     return last;
   }
@@ -241,7 +242,7 @@ class _LogTextViewState() extends State<LogTextView> {
     );
   }
 
-  Widget _lineList(List<LogTextLine> logLines) {
+  Widget _selectableLogLines(List<LogTextLine> logLines) {
     // Cupertino SelectableRegion — Material SelectionArea needs
     // MaterialLocalizations that CupertinoApp does not provide.
     return SelectableRegion(
@@ -257,7 +258,7 @@ class _LogTextViewState() extends State<LogTextView> {
         itemCount: logLines.length,
         itemBuilder: (context, index) {
           final line = logLines[index];
-          final highlight = _highlightFor(line.text);
+          final highlight = _firstHighlightMatchingLine(line.text);
           return Text(
             line.text,
             style: widget.textStyle.copyWith(
@@ -273,7 +274,7 @@ class _LogTextViewState() extends State<LogTextView> {
     );
   }
 
-  LogLineHighlight? _highlightFor(String line) {
+  LogLineHighlight? _firstHighlightMatchingLine(String line) {
     for (final highlight in widget.highlights) {
       if (highlight.matches(line)) return highlight;
     }

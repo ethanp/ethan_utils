@@ -39,7 +39,7 @@ void main() {
     expect(find.byIcon(Icons.clear_all), findsOneWidget);
   });
 
-  testWidgets('AppLogViewer Material chrome works under CupertinoApp', (
+  testWidgets('AppLogViewer injects MaterialLocalizations under CupertinoApp', (
     tester,
   ) async {
     _seedLogs();

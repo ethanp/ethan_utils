@@ -1,18 +1,19 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 extension ContextExtensions on BuildContext {
-  void showSnackBar(String message, {bool isError = false}) {
-    showCupertinoDialog(
+  void showInfoOrErrorAlert(String message, {bool isError = false}) {
+    showDialog<void>(
       context: this,
-      builder: (BuildContext dialogContext) => CupertinoAlertDialog(
+      builder: (BuildContext dialogContext) => AlertDialog(
         title: Text(isError ? 'Error' : 'Info'),
         content: Text(message),
-        actions: <CupertinoDialogAction>[
-          CupertinoDialogAction(
-            child: const Text('Ok'),
+        actions: <Widget>[
+          TextButton(
             onPressed: () {
               Navigator.pop(dialogContext);
             },
+            child: const Text('Ok'),
           ),
         ],
       ),

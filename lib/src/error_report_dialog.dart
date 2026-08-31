@@ -33,10 +33,10 @@ class const ErrorReportDialog({
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(title),
-      content: _content(),
+      content: _userMessageAndReportBody(),
       actions: [
         TextButton(
-          onPressed: () => _emailReport(),
+          onPressed: () => _openGmailComposeForReport(),
           child: const Text('Email to me'),
         ),
         TextButton(
@@ -51,7 +51,7 @@ class const ErrorReportDialog({
     );
   }
 
-  Widget _content() {
+  Widget _userMessageAndReportBody() {
     return SizedBox(
       width: 520,
       child: Column(
@@ -74,7 +74,7 @@ class const ErrorReportDialog({
     );
   }
 
-  Future<void> _emailReport() async {
+  Future<void> _openGmailComposeForReport() async {
     final encodedSubject = Uri.encodeComponent(emailSubject);
     final encodedBody = Uri.encodeComponent(reportBody);
     final gmailUri = Uri.parse(
