@@ -67,10 +67,38 @@ void main() {
     });
   });
 
+  group('formattedHms', () {
+    test('uses m ss under one hour and h m s from one hour', () {
+      expect(const Duration(minutes: 5, seconds: 30).formattedHms, '5m 30s');
+      expect(
+        const Duration(hours: 1, minutes: 2, seconds: 3).formattedHms,
+        '1h 02m 03s',
+      );
+    });
+  });
+
+  group('formattedHm', () {
+    test('drops seconds from one hour', () {
+      expect(const Duration(minutes: 5, seconds: 30).formattedHm, '5m 30s');
+      expect(const Duration(hours: 1, minutes: 2, seconds: 30).formattedHm, '1h 02m');
+    });
+  });
+
+  group('formattedMinutesOrSeconds', () {
+    test('omits a zero minute field', () {
+      expect(const Duration(seconds: 45).formattedMinutesOrSeconds, '45s');
+      expect(
+        const Duration(minutes: 2, seconds: 30).formattedMinutesOrSeconds,
+        '2m 30s',
+      );
+    });
+  });
+
   test('negative durations format as absolute', () {
     expect(const Duration(seconds: -5).formattedSeconds, '5s');
     expect(const Duration(seconds: -5).formattedElapsed, '0:05');
     expect(const Duration(seconds: -5).formattedClock, '00:05');
     expect(const Duration(seconds: -65).formattedMinutesSeconds, '1:05');
+    expect(const Duration(seconds: -45).formattedMinutesOrSeconds, '45s');
   });
 }

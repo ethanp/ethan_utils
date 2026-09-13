@@ -198,4 +198,27 @@ void main() {
       );
     });
   });
+
+  group('fullDate', () {
+    test('uses the English month name', () {
+      expect(DateTime(2026, 3, 4).fullDate, 'March 4, 2026');
+    });
+  });
+
+  group('todayYesterdayOrDate', () {
+    test('names today and yesterday, otherwise a padded date', () {
+      final now = DateTime.now();
+      expect(now.todayYesterdayOrDate, 'Today');
+      expect(now.shiftedByDays(-1).todayYesterdayOrDate, 'Yesterday');
+      expect(DateTime(2020, 3, 4).todayYesterdayOrDate, '03/04/2020');
+    });
+  });
+
+  group('clockTime and dateAtTime', () {
+    test('formats a 12-hour clock', () {
+      expect(DateTime(2026, 3, 4, 14, 30).clockTime, '2:30 PM');
+      expect(DateTime(2026, 3, 4, 0, 5).clockTime, '12:05 AM');
+      expect(DateTime(2026, 3, 4, 14, 30).dateAtTime, '3/4/2026 at 2:30 PM');
+    });
+  });
 }

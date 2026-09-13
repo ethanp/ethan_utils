@@ -95,6 +95,55 @@ extension DateTimeExtensions on DateTime {
     return '$short ago';
   }
 
+  /// Local calendar date as `March 4, 2026`.
+  String get fullDate {
+    const months = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+    final local = toLocal();
+    return '${months[local.month - 1]} ${local.day}, ${local.year}';
+  }
+
+  /// `Today`, `Yesterday`, or `03/04/2026`.
+  String get todayYesterdayOrDate {
+    final local = toLocal();
+    final today = DateTime.now().startOfDay;
+    final dateOnly = local.startOfDay;
+    if (dateOnly.sameDayAs(today)) return 'Today';
+    if (dateOnly.sameDayAs(today.shiftedByDays(-1))) return 'Yesterday';
+    final month = local.month.toString().padLeft(2, '0');
+    final day = local.day.toString().padLeft(2, '0');
+    return '$month/$day/${local.year}';
+  }
+
+  /// Local 12-hour clock: `2:30 PM`.
+  String get clockTime {
+    final local = toLocal();
+    final hour = local.hour > 12
+        ? local.hour - 12
+        : (local.hour == 0 ? 12 : local.hour);
+    final period = local.hour >= 12 ? 'PM' : 'AM';
+    final minute = local.minute.toString().padLeft(2, '0');
+    return '$hour:$minute $period';
+  }
+
+  /// `3/4/2026 at 2:30 PM`.
+  String get dateAtTime {
+    final local = toLocal();
+    return '${local.month}/${local.day}/${local.year} at ${local.clockTime}';
+  }
+
   /// Unit-only relative label for tight UI (`now`, `5m`, `3h`, `2d`, `2w`,
   /// `2mo`, `1y`) — no “ago” suffix.
   String relativeTimeShort() {
