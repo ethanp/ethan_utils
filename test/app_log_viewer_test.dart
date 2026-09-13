@@ -39,6 +39,38 @@ void main() {
     expect(find.byIcon(Icons.clear_all), findsOneWidget);
   });
 
+  testWidgets('recording a log during build does not assert', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Column(
+            children: [
+              Expanded(child: AppLogViewer(style: _style)),
+              Expanded(
+                child: Builder(
+                  builder: (context) {
+                    appLogBuffer.record(
+                      component: 'DuringBuild',
+                      level: AppLogLevel.info,
+                      message: 'logged while Expanded is building',
+                    );
+                    return const SizedBox.shrink();
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    expect(
+      find.textContaining('logged while Expanded is building'),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('AppLogViewer injects MaterialLocalizations under CupertinoApp', (
     tester,
   ) async {

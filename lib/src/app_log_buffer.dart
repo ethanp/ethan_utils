@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 
 import 'package:flutter/foundation.dart';
@@ -56,6 +57,7 @@ class AppLogBuffer({final int maxEntries = 1000, DateTime Function()? clock})
 
   final DateTime Function() _clock = clock ?? DateTime.now;
   final List<AppLogEntry> _entries = [];
+  bool _listenerNotifyQueued = false;
 
   UnmodifiableListView<AppLogEntry> get entries =>
       UnmodifiableListView(_entries);
@@ -92,13 +94,23 @@ class AppLogBuffer({final int maxEntries = 1000, DateTime Function()? clock})
   void clear() {
     if (_entries.isEmpty) return;
     _entries.clear();
-    notifyListeners();
+    _notifyListenersAfterBuild();
   }
 
   void _append(AppLogEntry appLogEntry) {
     _entries.add(appLogEntry);
     _dropOldestPastMaxEntries();
-    notifyListeners();
+    _notifyListenersAfterBuild();
+  }
+
+  /// Logging during [build] must not mark the viewer dirty in the same turn.
+  void _notifyListenersAfterBuild() {
+    if (_listenerNotifyQueued) return;
+    _listenerNotifyQueued = true;
+    scheduleMicrotask(() {
+      _listenerNotifyQueued = false;
+      notifyListeners();
+    });
   }
 
   void _dropOldestPastMaxEntries() {
