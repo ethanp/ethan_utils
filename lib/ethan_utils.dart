@@ -19,6 +19,7 @@ export 'src/duration_formatting.dart';
 export 'src/json_converters.dart';
 export 'src/json_parsing.dart';
 export 'src/string_extensions.dart';
+export 'src/http_url_equivalence.dart';
 export 'src/context_text_snack_bar.dart';
 export 'src/enum_extensions.dart';
 export 'src/color_extensions.dart';
