@@ -13,6 +13,13 @@ extension NullableDateTimeFromMillis on int? {
   }
 }
 
+/// Minute offset from midnight as a 12-hour clock.
+/// `0` and `24 * 60` are `12 AM`. On the hour, minutes are omitted (`6 PM`).
+extension MinuteOfDayClock on int {
+  String get clockFromMidnight =>
+      DateTime(2000, 1, 1, 0, this).clockTime(omitZeroMinutes: true);
+}
+
 /// Extensions on DateTime.
 extension DateTimeExtensions on DateTime {
   /// Check if same calendar day as another date.
@@ -115,25 +122,23 @@ extension DateTimeExtensions on DateTime {
     return '${months[local.month - 1]} ${local.day}, ${local.year}';
   }
 
-  /// `Today`, `Yesterday`, or `03/04/2026`.
+  /// `Today`, `Yesterday`, or [fullDate] (`March 4, 2026`).
   String get todayYesterdayOrDate {
     final local = toLocal();
     final today = DateTime.now().startOfDay;
     final dateOnly = local.startOfDay;
     if (dateOnly.sameDayAs(today)) return 'Today';
     if (dateOnly.sameDayAs(today.shiftedByDays(-1))) return 'Yesterday';
-    final month = local.month.toString().padLeft(2, '0');
-    final day = local.day.toString().padLeft(2, '0');
-    return '$month/$day/${local.year}';
+    return local.fullDate;
   }
 
   /// Local 12-hour clock: `2:30 PM`.
-  String get clockTime {
+  /// [omitZeroMinutes] drops `:00` on the hour: `2 PM`.
+  String clockTime({bool omitZeroMinutes = false}) {
     final local = toLocal();
-    final hour = local.hour > 12
-        ? local.hour - 12
-        : (local.hour == 0 ? 12 : local.hour);
+    final hour = local.hour % 12 == 0 ? 12 : local.hour % 12;
     final period = local.hour >= 12 ? 'PM' : 'AM';
+    if (omitZeroMinutes && local.minute == 0) return '$hour $period';
     final minute = local.minute.toString().padLeft(2, '0');
     return '$hour:$minute $period';
   }
@@ -141,7 +146,7 @@ extension DateTimeExtensions on DateTime {
   /// `3/4/2026 at 2:30 PM`.
   String get dateAtTime {
     final local = toLocal();
-    return '${local.month}/${local.day}/${local.year} at ${local.clockTime}';
+    return '${local.month}/${local.day}/${local.year} at ${local.clockTime()}';
   }
 
   /// Unit-only relative label for tight UI (`now`, `5m`, `3h`, `2d`, `2w`,

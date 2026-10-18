@@ -206,19 +206,32 @@ void main() {
   });
 
   group('todayYesterdayOrDate', () {
-    test('names today and yesterday, otherwise a padded date', () {
+    test('names today and yesterday, otherwise the full date', () {
       final now = DateTime.now();
       expect(now.todayYesterdayOrDate, 'Today');
       expect(now.shiftedByDays(-1).todayYesterdayOrDate, 'Yesterday');
-      expect(DateTime(2020, 3, 4).todayYesterdayOrDate, '03/04/2020');
+      expect(DateTime(2020, 3, 4).todayYesterdayOrDate, 'March 4, 2020');
     });
   });
 
   group('clockTime and dateAtTime', () {
     test('formats a 12-hour clock', () {
-      expect(DateTime(2026, 3, 4, 14, 30).clockTime, '2:30 PM');
-      expect(DateTime(2026, 3, 4, 0, 5).clockTime, '12:05 AM');
+      expect(DateTime(2026, 3, 4, 14, 30).clockTime(), '2:30 PM');
+      expect(DateTime(2026, 3, 4, 0, 5).clockTime(), '12:05 AM');
+      expect(DateTime(2026, 3, 4, 12, 0).clockTime(), '12:00 PM');
+      expect(DateTime(2026, 3, 4, 0, 0).clockTime(), '12:00 AM');
+      expect(
+        DateTime(2026, 3, 4, 15, 0).clockTime(omitZeroMinutes: true),
+        '3 PM',
+      );
       expect(DateTime(2026, 3, 4, 14, 30).dateAtTime, '3/4/2026 at 2:30 PM');
+    });
+
+    test('minute of day is a clock from midnight', () {
+      expect(0.clockFromMidnight, '12 AM');
+      expect((12 * 60).clockFromMidnight, '12 PM');
+      expect((19 * 60 + 41).clockFromMidnight, '7:41 PM');
+      expect((24 * 60).clockFromMidnight, '12 AM');
     });
   });
 }
