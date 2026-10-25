@@ -8,8 +8,10 @@ import 'app_log_buffer.dart';
 ///
 /// Records entries in [appLogBuffer] for all build modes.
 ///
-/// In debug mode, it also mirrors output via [developer.log] (avoids the
-/// `flutter:` prefix that `debugPrint` / `print` get from Flutter tooling).
+/// In debug mode, info and fine entries mirror via [developer.log] (no
+/// `flutter:` prefix in the IDE). Warnings and errors go to stdout instead,
+/// so `flutter run` output — and the workbench run log that captures it —
+/// shows them with their stack traces.
 ///
 /// ```dart
 /// const _log = ELogger('MyComponent');
@@ -63,6 +65,10 @@ class const ELogger(final String component) {
       stackTrace: stackTrace,
     );
     if (!kDebugMode) return;
+    if (level == AppLogLevel.warning || level == AppLogLevel.error) {
+      debugPrint(logEntry.formattedText);
+      return;
+    }
     developer.log(
       logEntry.formattedText,
       name: component,
