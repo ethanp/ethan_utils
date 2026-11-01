@@ -13,8 +13,7 @@ enum AppLogLevel({
   fine(tag: 'FINE'),
 }
 
-@immutable
-class const AppLogEntry({
+class AppLogEntry({
   required final DateTime timestamp,
   required final String component,
   required final AppLogLevel level,
@@ -22,24 +21,39 @@ class const AppLogEntry({
   final Object? error,
   final StackTrace? stackTrace,
 }) {
-  String get formattedText {
-    final logMessageBuffer = StringBuffer(_bracketedClockTagAndComponent())
-      ..write(message);
+  /// `[hh:mm:ss.cc|TAG|component] message`, with the error and stack trace on
+  /// following lines. Formatted once: viewers read it on every rebuild, and a
+  /// stack trace renders slowly.
+  final String formattedText = _formatted(
+    timestamp: timestamp,
+    component: component,
+    level: level,
+    message: message,
+    error: error,
+    stackTrace: stackTrace,
+  );
 
+  static String _formatted({
+    required DateTime timestamp,
+    required String component,
+    required AppLogLevel level,
+    required String message,
+    required Object? error,
+    required StackTrace? stackTrace,
+  }) {
+    final logMessageBuffer = StringBuffer(
+      '[${_hhMmSsWithCentiseconds(timestamp)}|${level.tag}|$component] ',
+    )..write(message);
     if (error != null) {
       logMessageBuffer.write('\n  error: $error');
     }
     if (stackTrace != null) {
       logMessageBuffer.write('\n  $stackTrace');
     }
-
     return logMessageBuffer.toString();
   }
 
-  String _bracketedClockTagAndComponent() =>
-      '[${_hhMmSsWithCentiseconds()}|${level.tag}|$component] ';
-
-  String _hhMmSsWithCentiseconds() {
+  static String _hhMmSsWithCentiseconds(DateTime timestamp) {
     final hour = timestamp.hour.toString().padLeft(2, '0');
     final minute = timestamp.minute.toString().padLeft(2, '0');
     final second = timestamp.second.toString().padLeft(2, '0');

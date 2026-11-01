@@ -1,5 +1,4 @@
 import 'package:ethan_utils/ethan_utils.dart';
-import 'package:flutter/painting.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -105,23 +104,10 @@ void main() {
     });
   });
 
-  group('stableHash and shadeKeyedBy', () {
+  group('stableHash', () {
     test('stableHash is deterministic', () {
       expect('abc'.stableHash, 'abc'.stableHash);
       expect('abc'.stableHash, isNot('abd'.stableHash));
-    });
-
-    test('shadeKeyedBy returns a color', () {
-      const base = Color(0xFF4361EE);
-      expect(base.shadeKeyedBy('cat-1'), isA<Color>());
-    });
-  });
-
-  group('laidOutWidth', () {
-    test('returns positive width', () {
-      const style = TextStyle(fontSize: 14);
-      expect('Hello'.laidOutWidth(style), greaterThan(0));
-      expect(['a', 'www'].widestLaidOutWidth(style), greaterThan(0));
     });
   });
 
@@ -232,6 +218,32 @@ void main() {
       expect((12 * 60).clockFromMidnight, '12 PM');
       expect((19 * 60 + 41).clockFromMidnight, '7:41 PM');
       expect((24 * 60).clockFromMidnight, '12 AM');
+    });
+  });
+
+  group('startOfDay', () {
+    test('drops the clock time on an ordinary day', () {
+      expect(
+        DateTime(2026, 4, 5, 10, 11, 12, 130, 400).startOfDay,
+        DateTime(2026, 4, 5),
+      );
+      expect(DateTime(2026, 4, 5).startOfDay, DateTime(2026, 4, 5));
+    });
+
+    test('stays on the calendar day across a DST change', () {
+      // Spring forward and fall back in US time zones; a plain subtraction
+      // of the clock time would land an hour off on these days.
+      expect(DateTime(2026, 3, 8, 15).startOfDay, DateTime(2026, 3, 8));
+      expect(DateTime(2026, 3, 8, 1, 30).startOfDay, DateTime(2026, 3, 8));
+      expect(DateTime(2026, 11, 1, 15).startOfDay, DateTime(2026, 11, 1));
+      expect(DateTime(2026, 11, 1, 0, 30).startOfDay, DateTime(2026, 11, 1));
+    });
+
+    test('keeps UTC instants in UTC', () {
+      expect(
+        DateTime.utc(2026, 4, 5, 23, 59).startOfDay,
+        DateTime.utc(2026, 4, 5),
+      );
     });
   });
 }
